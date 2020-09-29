@@ -1,0 +1,1872 @@
+{
+    "ROSTemplateFormatVersion": "2015-09-01",
+    "Description": "创建单节点HANA",
+    "Parameters": {
+        "ImageId": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "操作系统版本",
+                "en": "Operating system and version"
+            },
+            "Label": {
+                "zh-cn": "操作系统版本",
+                "en": "Operating System And Version"
+            },
+            "AllowedValues": [
+                "SUSE15SP1-SAP",
+                "SUSE12SP4-SAP",
+                "SUSE12SP3-SAP",
+                "SUSE12SP2-SAP"
+            ]
+        },
+        "CustomizedImageId": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "使用自定义镜像",
+                "en": "Please enter a custom image id"
+            },
+            "Label": {
+                "zh-cn": "自定义镜像Id",
+                "en": "Custom Image Id"
+            },
+            "Default": ""
+        },
+        "CustomizedImage": {
+            "Type": "Boolean",
+            "Description": {
+                "zh-cn": "是否使用自定义镜像",
+                "en": "Use custom image or not"
+            },
+            "Label": {
+                "zh-cn": "使用自定义镜像",
+                "en": "Use Custom Image"
+            },
+            "Default": false
+        },
+        "ZoneId": {
+            "Type": "String",
+            "AssociationProperty": "ALIYUN::ECS::Instance:ZoneId",
+            "Description": {
+                "zh-cn": "可用区列表请参考, <a href='https://help.aliyun.com/document_detail/40654.html' target='_blank'>地域和可用区信息</a>",
+                "en": "The Availability Zone where HANA instance will be deployed"
+            },
+            "Label": {
+                "zh-cn": "期望部署的可用区",
+                "en": "Availability Zones"
+            }
+        },
+        "VpcId": {
+            "Type": "String",
+            "AssociationProperty": "ALIYUN::ECS::VPC::VPCId",
+            "Description": {
+                "zh-cn": "控制台-VPC-专有网络下查询",
+                "en": "Please search the ID starting with (vpc-xxx)from console-Virtual Private Cloud"
+            },
+            "Label": {
+                "zh-cn": "现有VPC的实例ID",
+                "en": "Exisit VPC Instance ID"
+            }
+        },
+        "VSwitchId": {
+            "Type": "String",
+            "AssociationProperty": "ALIYUN::ECS::VSwitch::VSwitchId",
+            "Description": {
+                "zh-cn": "控制台-VPC-专有网络-交换机下查询",
+                "en": "Please search the ID starting with (vsw-xxx) from console-Virtual Private Cloud-VSwitches"
+            },
+            "Label": {
+                "zh-cn": "现有VSwitch的实例ID",
+                "en": "VSwitch Instance ID"
+            }
+        },
+        "InstanceType": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "<font color='blue'><b>1.选择机型前请先确认当前可用区下该机型是否有货，部分机型需要提前报备</b></font><br><font color='blue'><b>2.可选机型列表</b></font><br>[ecs.r5.2xlarge 非认证机型 64G]<br>[ecs.r5.4xlarge 非认证机型 128G]<br>[ecs.r5.8xlarge <font color='green'>SAP认证机型 256G</font>]<br>[ecs.r6.13xlarge <font color='green'>SAP认证机型 384G</font>]<br>[ecs.se1.14xlarge <font color='green'>SAP认证机型 480G</font>]<br>[ecs.r5.16xlarge <font color='green'>SAP认证机型 512G</font>]<br>[ecs.re4.20xlarge <font color='green'>SAP认证机型 960G</font>]<br>[ecs.re4.40xlarge <font color='green'>SAP认证机型 1920G</font>]<br>[ecs.re4e.40xlarge <font color='green'>SAP认证机型 3840G</font>]<br>[ecs.ebmre6-6t.52xlarge <font color='green'>SAP认证机型 6144G</font>]<br><font color='blue'><b>3.详情请参考</font> <a href='https://help.aliyun.com/document_detail/25378.html' target='_blank'><b>实例族详情</b></a>",
+                "en": "<font color='blue'><b>Instance type list</b></font><br> [ecs.r5.2xlarge Non-certified instance type 64G]<br>[ecs.r5.4xlarge Non-certified instance type 128G]<br>[ecs.r5.8xlarge <font color='green'>SAP certified instance type 256G</font>]<br>[ecs.r6.13xlarge <font color='green'>SAP certified instance type 384G</font>]<br>[ecs.se1.14xlarge <font color='green'>SAP certified instance type 480G</font>]<br>[ecs.r5.16xlarge <font color='green'>SAP certified instance type 512G</font>]<br>[ecs.re4.20xlarge <font color='green'>SAP certified instance type 960G</font>]<br>[ecs.re4.40xlarge <font color='green'>SAP certified instance type 1920G</font>]<br>[ecs.re4e.40xlarge <font color='green'>SAP certified instance type 3840G</font>]<br>[ecs.ebmre6-6t.52xlarge <font color='green'>SAP certified instance type 6144G</font>]"
+            },
+            "Label": {
+                "zh-cn": "HANA机型",
+                "en": "Instance Type For HANA Host"
+            },
+            "AllowedValues": [
+                "ecs.r5.2xlarge(8vCPUs 64GiB)",
+                "ecs.r5.4xlarge(16vCPUs 128GiB)",
+                "ecs.r5.8xlarge(32vCPUs 256GiB)",
+                "ecs.r6.13xlarge(52vCPUs 384GiB)",
+                "ecs.se1.14xlarge(56vCPUs 480GiB)",
+                "ecs.r5.16xlarge(64vCPUs 512GiB)",
+                "ecs.re4.20xlarge(80vCPUs 960GiB)",
+                "ecs.re4.40xlarge(160vCPUs 1920GiB)",
+                "ecs.re4e.40xlarge(160vCPUs 3840GiB)",
+                "ecs.ebmre6-6t.52xlarge(208vCPUs 6144GiB)"
+            ]
+        },
+        "ECSHostname": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "HANA所在ECS的主机名",
+                "en": "HANA ECS hostname"
+            },
+            "Label": {
+                "zh-cn": "主机名",
+                "en": "Hostname"
+            },
+            "Default": "hana001",
+            "AllowedPattern": "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-])*([a-zA-Z0-9])$",
+            "ConstraintDescription": {
+                "zh-cn": "长度为 2-13 个字符，允许使用大小写字母、数字或连字符(-)，但不能以连字符(-)开头或结尾。",
+                "en": "The length is 2-13 characters,can starting with a capital or lowercase letter,and can contain numbers,or -,but can't starting with - or end with -"
+            }
+        },
+        "PrivateIpAddress": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "ECS主机私有IP地址,请注意IP地址的范围要在交换机网段",
+                "en": "Private IP address for HANA ECS host,please pay attention:IP address should be within VSwitch CIDR Block"
+            },
+            "Label": {
+                "zh-cn": "私有IP地址",
+                "en": "Private IP Address"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "请输入正确的私有IP地址",
+                "en": "Please input the right private IP address"
+            },
+            "AllowedPattern": "^((192\\.168|172\\.([1][6-9]|[2]\\d|3[01]))(\\.([2][0-4]\\d|[2][5][0-5]|[01]?\\d?\\d)){2}|(\\D)*10(\\.([2][0-4]\\d|[2][5][0-5]|[01]?\\d?\\d)){3})$"
+        },
+        "LoginPassword": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "ECS root用户登录密码）",
+                "en": "HANA ECS root passowrd"
+            },
+            "Label": {
+                "zh-cn": "root用户密码",
+                "en": "root Passowrd"
+            },
+            "AllowedPattern": "^(?![a-zA-Z]+$)(?![A-Z0-9]+$)(?![A-Z\\W_]+$)(?![a-z0-9]+$)(?![a-z\\W_]+$)(?![0-9\\W_]+$)[a-zA-Z0-9\\W_]{8,}$",
+            "ConstraintDescription": {
+                "zh-cn": "8-30个字符，且同时包含三项（大写字母，小写字母，数字或特殊符号）",
+                "en": "8-30 characters,include(capital letter,lowercase letter,numbers or special characters)"
+            },
+            "NoEcho": true,
+            "Confirm": true
+        },
+        "HANASID": {
+            "Type": "String",
+            "ConstraintDescription": {
+                "zh-cn": "必须输入3个字符,可包含大写字母或数字，首位必须是大写字母",
+                "en": "3 characters,can including capital letter or number, must starting with capital letter"
+            },
+            "Description": {
+                "zh-cn": "HANA SID",
+                "en": "HANA system ID"
+            },
+            "Label": {
+                "zh-cn": "HANA SID",
+                "en": "HANA System ID"
+            },
+            "AllowedPattern": "^[A-Z][A-Z0-9][A-Z0-9]$"
+        },
+        "HANAInstanceNumber": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "HANA instance number",
+                "en": "HANA instance number"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "2位数字，00-97",
+                "en": "2 numbers,00-97"
+            },
+            "Label": {
+                "zh-cn": "HANA实例编号",
+                "en": "HANA Instance Number"
+            },
+            "AllowedPattern": "^([0-8][0-9]|9[0-6])$",
+            "Default": "00"
+        },
+        "SystemDiskCategory": {
+            "Default": "cloud_ssd",
+            "AllowedValues": [
+                "cloud_efficiency",
+                "cloud_ssd",
+                "cloud_essd"
+            ],
+            "Description": {
+                "zh-cn": "系统盘分类：高效云盘，SSD云盘，ESSD云盘（PL1）",
+                "en": "System disk type: Ultra Disk,SSD disk"
+            },
+            "Label": {
+                "zh-cn": "系统盘类型",
+                "en": "System Disk Type"
+            },
+            "Type": "String"
+        },
+        "SystemDiskSize": {
+            "Default": "100",
+            "Type": "String",
+            "Description": {
+                "zh-cn": "根目录大小，单位GB，容量20-500G",
+                "en": "/ file system size,unit:GB,range:20~500G"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "必须输入整数，单位GB，容量20-500G",
+                "en": "Must be an integer,range:20~500G"
+            },
+            "Label": {
+                "zh-cn": "系统盘大小",
+                "en": "System Disk Size"
+            },
+            "AllowedPattern": "(^2[0-9]$)|(^[3-9]\\d$)|(^[1-4]\\d{2}$)|500$"
+        },
+        "DataLogDiskCategory": {
+            "Default": "cloud_ssd",
+            "AllowedValues": [
+                "cloud_essd PL1",
+                "cloud_essd PL2",
+                "cloud_essd PL3",
+                "cloud_ssd"
+            ],
+            "Description": {
+                "zh-cn": "1. /hana/data和/hana/log文件系统所在磁盘类型：ESSD云盘、SSD云盘。<br>2. ESSD 云盘容量越大，可供选择的性能级别越高（460 GiB 以上可选 PL2，1260 GiB 以上可选 PL3），性能级别越高相应的费用也越高:<ul><li>&nbsp;&nbsp;&nbsp;&nbsp;cloud_essd PL1（单盘IOPS性能上限5万）</li><li>&nbsp;&nbsp;&nbsp;&nbsp;cloud_essd PL2（单盘IOPS性能上限10万）</li><li>&nbsp;&nbsp;&nbsp;&nbsp;cloud_essd PL3（单盘IOPS性能上限100万）</li></ul>如何合理选择 ESSD 云盘性能级别，<a href='https://help.aliyun.com/document_detail/122389.html' target='view_window'>查看详情&gt;</a>",
+                "en": "1. /hana/data and /hana/log file system disk type: ESSD disk,SSD disk.<br>2. The higher the performance level that you can select. For example, PL2 is available for an enhanced SSD of more than 460 GiB and PL3 is available for an enhanced SSD of more than 1260 GiB. A higher performance level indicates a higher fee:<ul><li>&nbsp;&nbsp;&nbsp;&nbsp;cloud_essd PL1(up to 50,000 IOPS per disk)</li><li>&nbsp;&nbsp;&nbsp;&nbsp;cloud_essd PL2(up to 100,000 IOPS per disk)</li><li>&nbsp;&nbsp;&nbsp;&nbsp;cloud_essd PL3(up to 1,000,000 IOPS per disk)</li></ul>For more information about how to select the performance level of an enhanced SSD, <a href='https://help.aliyun.com/document_detail/122389.html' target='view_window'>click here&gt;</a>"
+            },
+            "Label": {
+                "zh-cn": "HANA数据卷和日志卷磁盘类型",
+                "en": "HANA Data And Log Volume Disk Type"
+            },
+            "Type": "String"
+        },
+        "DataSize": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "/hana/data文件系统大小，单位GB，SAP官方推荐：Size >= 1 x RAM",
+                "en": "/hana/data file system size,unit:GB,SAP recommendation:Size >= 1 x RAM"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "必须输入整数，容量20-32768G",
+                "en": "Must be an integer,range:20~32768G"
+            },
+            "Label": {
+                "zh-cn": "/hana/data大小",
+                "en": "/hana/data File System Size"
+            },
+            "AllowedPattern": "(^[2-9]\\d{1}$)|(^[1-9]\\d{2}$)|(^[1-9]\\d{3}$)|(^[1-2]\\d{4}$)|(^3[0-2][0-7][0-6][0-8]$)"
+        },
+        "LogSize": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "/hana/log文件系统大小，单位GB，SAP官方推荐：[systems ≤ 512GB ] Sizeredolog = 1/2 x RAM;[systems > 512GB ] Sizeredolog(min) = 512GB",
+                "en": "/hana/log file system size,unit:GB,SAP recommendation:[systems ≤ 512GB ] Sizeredolog = 1/2 x RAM;[systems > 512GB ] Sizeredolog(min) = 512GB"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "必须输入整数,容量20-32768GB",
+                "en": "Must be an integer,range:20~32768G"
+            },
+            "Label": {
+                "zh-cn": "/hana/log大小",
+                "en": "/hana/log File System Size"
+            },
+            "AllowedPattern": "(^[2-9]\\d{1}$)|(^[1-9]\\d{2}$)|(^[1-9]\\d{3}$)|(^[1-2]\\d{4}$)|(^3[0-2][0-7][0-6][0-8]$)"
+        },
+        "SharedDiskCategory": {
+            "Default": "cloud_ssd",
+            "AllowedValues": [
+                "cloud_efficiency",
+                "cloud_ssd",
+                "cloud_essd"
+            ],
+            "Description": {
+                "zh-cn": "/hana/shared文件系统所在磁盘类型：高效云盘、SSD云盘、ESSD云盘",
+                "en": "/hana/shared file system disk type: Ultra Disk, SSD disk, ESSD disk"
+            },
+            "Label": {
+                "zh-cn": "HANA共享卷磁盘类型",
+                "en": "/hana/shared File System Disk Type"
+            },
+            "Type": "String"
+        },
+        "SharedSize": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "/hana/shared文件系统大小，单位GB，SAP官方推荐：Sizeinstallation(single-node) = MIN(1 x RAM; 1 TB)",
+                "en": "/hana/shared file system size,unit:GB,SAP recommendation: Sizeinstallation(single-node) = MIN(1 x RAM; 1 TB)"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "必须输入整数，容量20-32768GB",
+                "en": "Must be an integer,range:20~32768G"
+            },
+            "Label": {
+                "zh-cn": "/hana/shared大小",
+                "en": "/hana/shared File System Size"
+            },
+            "AllowedPattern": "(^[2-9]\\d{1}$)|(^[1-9]\\d{2}$)|(^[1-9]\\d{3}$)|(^[1-2]\\d{4}$)|(^3[0-2][0-7][0-6][0-8]$)"
+        },
+        "UsrsapDiskCategory": {
+            "Default": "cloud_ssd",
+            "AllowedValues": [
+                "cloud_efficiency",
+                "cloud_ssd",
+                "cloud_essd"
+            ],
+            "Description": {
+                "zh-cn": "/usr/sap文件系统所在磁盘类型：高效云盘、SSD云盘、ESSD云盘",
+                "en": "/usr/sap file system disk type: Ultra Disk, SSD disk, ESSD disk"
+            },
+            "Label": {
+                "zh-cn": "/usr/sap文件系统所在磁盘类型",
+                "en": "/usr/sap File System Disk Type"
+            },
+            "Type": "String"
+        },
+        "UsrsapSize": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "/usr/sap文件系统大小，单位GB",
+                "en": "/usr/sap file system size,unit:GB"
+            },
+            "Default": "50",
+            "ConstraintDescription": {
+                "zh-cn": "必须输入整数，容量20-32768G",
+                "en": "Must be an integer,range:20~32768G"
+            },
+            "Label": {
+                "zh-cn": "/usr/sap大小",
+                "en": "/usr/sap File System Size"
+            },
+            "AllowedPattern": "(^[2-9]\\d{1}$)|(^[1-9]\\d{2}$)|(^[1-9]\\d{3}$)|(^[1-2]\\d{4}$)|(^3[0-2][0-7][0-6][0-8]$)"
+        },
+        "MasterPass": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "HANA Master密码，",
+                "en": "HANA master password to use during installation"
+            },
+            "Label": {
+                "zh-cn": "HANA Master密码",
+                "en": "HANA Master Password"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "至少8个字符,至少包含一个数字，大写字母和小写字母，可以使用特殊字符（_,@,#,$)，但不能以数字和特殊字符开头。",
+                "en": "Must be at least 8 characters with uppercase, lowercase, and numeric values,can use special characters include(_,@,#,$),but can't staring with number and specical characters"
+            },
+            "AllowedPattern": "^(?=.*[0-9].*)(?=.*[A-Z].*)(?=.*[a-z].*)[a-zA-Z][0-9a-zA-Z_@#$]{7,}$",
+            "NoEcho": true,
+            "Confirm": true
+        },
+        "ActionTrailCondition": {
+            "Type": "Boolean",
+            "Description": {
+                "zh-cn": "是否添加操作审计（ActionTrail）功能",
+                "en": "Whether enable action trail function"
+            },
+            "Label": {
+                "zh-cn": "操作审计",
+                "en": "ActionTrail"
+            },
+            "Default": false
+        },
+        "ActionTrailOssBucketName": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "填写用于存储日志文件的已有的OSS bucket名称.例：mybucket",
+                "en": "Please create an OSS bucket for storage ActionTrail logs and input the bucket name.eg:mybucket"
+            },
+            "Label": {
+                "zh-cn": "日志存储Bucket Name",
+                "en": "Actiontrail Bucket Name"
+            },
+            "Default": ""
+        },
+        "WindowsRDPImageId": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "跳板机操作系统版本",
+                "en": "Operating system and version"
+            },
+            "Label": {
+                "zh-cn": "跳板机操作系统版本",
+                "en": "Operating System And Version"
+            },
+            "Default": "win2016",
+            "AllowedValues": [
+                "win2016",
+                "win2012",
+                "win2008"
+            ]
+        },
+        "WindowsRDPHostname": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "跳板机的主机名",
+                "en": "Hostname of windows WindowsRDP server"
+            },
+            "Label": {
+                "zh-cn": "跳板机主机名",
+                "en": "Hostname"
+            },
+            "Default": "SAPWindowsRDP"
+        },
+        "WindowsRDPCondition": {
+            "Type": "Boolean",
+            "Description": {
+                "zh-cn": "是否需要创建跳板机",
+                "en": "Whether enable windows WindowsRDP server"
+            },
+            "Label": {
+                "zh-cn": "跳板机",
+                "en": "Windows WindowsRDP Server"
+            },
+            "Default": false
+        },
+        "WindowsRDPInstanceType": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "<font color='blue'><b>1.选择机型前请先确认当前可用区下该机型是否有货，部分机型需要提前报备</b></font><br><font color='blue'><b>2.可选机型列表</b></font><br>[ecs.sn2ne.large<font color='green'>(2vCPUs,8GiB)</font>]<br>[ecs.sn2ne.xlarge<font color='green'>(4vCPUs,16GiB)</font>]<br>[ecs.sn1ne.large<font color='green'>(2vCPUs,4GiB)</font>]<br>[ecs.sn1ne.xlarge<font color='green'>(4vCPUs,8GiB)</font>]<br>[ecs.g5.large<font color='green'>(2vCPUs,8GiB)</font>]<br>[ecs.g5.xlarge<font color='green'>(4vCPUs,16GiB)</font>]<br>[ecs.c5.large<font color='green'>(2vCPUs,4GiB)</font>]<br>[ecs.c5.xlarge<font color='green'>(4vCPUs,8GiB)</font>]<br><font color='blue'>3.详情请参考</font><a href='https://help.aliyun.com/document_detail/25378.html'target='_blank'><b>实例族详情</b></a>",
+                "en": ""
+            },
+            "Label": {
+                "zh-cn": "跳板机机型",
+                "en": "WindowsRDP Server Instance Type"
+            },
+            "Default": "ecs.g5.large(2vCPUs 8GiB)",
+            "AllowedValues": [
+                "ecs.sn2ne.large(2vCPUs 8GiB)",
+                "ecs.sn2ne.xlarge(4vCPUs 16GiB)",
+                "ecs.sn1ne.large(2vCPUs 4GiB)",
+                "ecs.sn1ne.xlarge(4vCPUs 8GiB)",
+                "ecs.g5.large(2vCPUs 8GiB)",
+                "ecs.g5.xlarge(4vCPUs 16GiB)",
+                "ecs.c5.large(2vCPUs 4GiB)",
+                "ecs.c5.xlarge(4vCPUs 8GiB)"
+            ]
+        },
+        "MediaPath": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "请从SAP官网下载HANA安装介质，上传至SAP系统部署所在的OSS地域，输入该目录的路径，例：oss://{bucket_name}/hana",
+                "en": "Please download the HANA installation media from SAP software download center(Don't need to extract, the packages are like these:51053381_part1.exe or.rar）and upload them into OSS bucket,input the full path starting with oss://. eg: oss://{bucket_name}/hana"
+            },
+            "Label": {
+                "zh-cn": "HANA软件包OSS路径",
+                "en": "HANA Software OSS Path"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "oss:开头，例：oss://{bucket_name}/hana",
+                "en": "Starting with oss.eg: oss://{bucket_name}/hana"
+            },
+            "AllowedPattern": "^(oss|https|http)://[\\S\\w]+([\\S\\w])+$"
+        },
+        "SystemUsage": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "HANA系统类型，包括custom,development,test,production",
+                "en": "HANA system usage(custom,development,test,production)"
+            },
+            "Label": {
+                "zh-cn": "HANA系统类型",
+                "en": "HANA System Usage"
+            },
+            "Default": "custom",
+            "AllowedValues": [
+                "custom",
+                "development",
+                "test",
+                "production"
+            ]
+        },
+        "HANASapSidAdmUid": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "sidadm user ID,只能填写数字,大于500且小于65532，默认值是1001",
+                "en": "sidadm user ID,Only number,range:500~65532,default value:1001"
+            },
+            "Label": {
+                "zh-cn": "HANA sidadm用户ID",
+                "en": "HANA sidadm User ID"
+            },
+            "Default": "1001",
+            "ConstraintDescription": {
+                "zh-cn": "只能填写数字,大于500且小于65532",
+                "en": "Only number,range:500~65532"
+            },
+            "AllowedPattern": "(^[5-9]\\d{2}$)|(^[1-9]\\d{3}$)|(^[1-5]\\d{4}$)|(^6[0-5][0-5][0-3][0-2]$)"
+        },
+        "HANASapSysGid": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "sapsys group ID,只能填写数字，默认值是79",
+                "en": "Sapsys group ID,Only number,default value:79"
+            },
+            "Label": {
+                "zh-cn": "HANA sapsys组ID",
+                "en": "HANA sapsys Group ID"
+            },
+            "Default": "79",
+            "ConstraintDescription": {
+                "zh-cn": "只能填写数字",
+                "en": "Only number"
+            },
+            "AllowedPattern": "(^\\d+$)"
+        },
+        "AutomationProvider": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "SAP自动部署依赖文件源",
+                "en": "Provider of SAP auto installation files"
+            },
+            "Label": {
+                "zh-cn": "SAP自动部署依赖源",
+                "en": "SAP Automation Provider"
+            },
+            "Default": "sap-automation"
+        },
+        "Site": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "当前部署所在站点：国际站、中国站。",
+                "en": "Current deployment website: International, China."
+            },
+            "Label": {
+                "zh-cn": "当前部署所在站点",
+                "en": "Current deployment website"
+            },
+            "AllowedValues": [
+                "International",
+                "China"
+            ],
+            "Default": "China"
+        },
+        "SSHKeyPair": {
+            "Type": "String",
+            "AssociationProperty": "ALIYUN::ECS::KeyPair::KeyPairName",
+            "Description": {
+                "zh-cn": "同时为创建的实例绑定密钥对，默认不绑定。",
+                "en": "Bind a key pair for ECS"
+            },
+            "Label": {
+                "zh-cn": "密钥对",
+                "en": "Key Pair"
+            },
+            "Default": ""
+        }
+    },
+    "Metadata": {
+        "ALIYUN::ROS::Interface": {
+            "TemplateTags": [
+                "SAP"
+            ],
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": {
+                            "zh-cn": "基础资源配置（必填)",
+                            "en": "Infrastructure Configuration"
+                        }
+                    },
+                    "Parameters": [
+                        "ZoneId",
+                        "ImageId",
+                        "VpcId",
+                        "VSwitchId",
+                        "InstanceType",
+                        "ECSHostname",
+                        "PrivateIpAddress",
+                        "LoginPassword"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": {
+                            "zh-cn": "HANA配置（必填）",
+                            "en": "SAP HANA Configuration"
+                        }
+                    },
+                    "Parameters": [
+                        "HANASID",
+                        "HANAInstanceNumber",
+                        "SystemDiskCategory",
+                        "SystemDiskSize",
+                        "DataLogDiskCategory",
+                        "DataSize",
+                        "LogSize",
+                        "SharedDiskCategory",
+                        "SharedSize",
+                        "UsrsapDiskCategory",
+                        "UsrsapSize",
+                        "MasterPass",
+                        "MediaPath"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": {
+                            "zh-cn": "可选配置",
+                            "en": "Optional Configuration"
+                        }
+                    },
+                    "Parameters": [
+                        "SystemUsage",
+                        "HANASapSidAdmUid",
+                        "HANASapSysGid",
+                        "CustomizedImage",
+                        "CustomizedImageId",
+                        "AutomationProvider",
+                        "SSHKeyPair",
+                        "Site"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": {
+                            "zh-cn": "WindowsRDP(可选)",
+                            "en": "WindowsRDP(Optinal)"
+                        }
+                    },
+                    "Parameters": [
+                        "WindowsRDPCondition",
+                        "WindowsRDPHostname",
+                        "WindowsRDPImageId",
+                        "WindowsRDPInstanceType"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": {
+                            "zh-cn": "操作审计(可选)",
+                            "en": "ActionTrail(Optial)"
+                        }
+                    },
+                    "Parameters": [
+                        "ActionTrailCondition",
+                        "ActionTrailOssBucketName"
+                    ]
+                }
+            ]
+        }
+    },
+    "Conditions": {
+        "CreateWindowsRDPCondition": {
+            "Ref": "WindowsRDPCondition"
+        },
+        "CustomizedImageCondition": {
+            "Ref": "CustomizedImage"
+        },
+        "AutomationProviderCondition": {
+            "Fn::Equals": [
+                {
+                    "Ref": "AutomationProvider"
+                },
+                "sap-automation"
+            ]
+        }
+    },
+    "Mappings": {
+        "DiskCategoryMap": {
+            "cloud_efficiency": {
+                "Category": "cloud_efficiency",
+                "PerformanceLevel": ""
+            },
+            "cloud_ssd": {
+                "Category": "cloud_ssd",
+                "PerformanceLevel": ""
+            },
+            "cloud_essd PL1": {
+                "Category": "cloud_essd",
+                "PerformanceLevel": "PL1"
+            },
+            "cloud_essd PL2": {
+                "Category": "cloud_essd",
+                "PerformanceLevel": "PL2"
+            },
+            "cloud_essd PL3": {
+                "Category": "cloud_essd",
+                "PerformanceLevel": "PL3"
+            }
+        },
+        "ImageMap-China": {
+            "cn-qingdao": {
+                "SUSE12SP4-SAP": "m-m5ecmko3ebq9pq2x31o6",
+                "SUSE12SP3-SAP": "Unsupported-Image",
+                "SUSE15SP1-SAP": "m-m5e1y4dhnmouu6snne0a"
+            },
+            "cn-beijing": {
+                "SUSE12SP4-SAP": "m-2ze9c366n7p6s8otcwep",
+                "SUSE12SP3-SAP": "m-2zecbq5bi9kmu31nmeji",
+                "SUSE15SP1-SAP": "m-2ze30c4bdxfb9gg7gap4"
+            },
+            "cn-zhangjiakou": {
+                "SUSE12SP4-SAP": "m-8vbc0hp0i2dybcb7h3wc",
+                "SUSE12SP3-SAP": "m-8vb209btpns802pt24b4",
+                "SUSE15SP1-SAP": "m-8vb9dgfde1zgbzlorxzs"
+            },
+            "cn-huhehaote": {
+                "SUSE12SP4-SAP": "m-hp3eqwgrmvta8qdiy773",
+                "SUSE12SP3-SAP": "m-hp3hhmrq470hmya3vnm1",
+                "SUSE15SP1-SAP": "m-hp3f14tr5j65aprc0222"
+            },
+            "cn-hangzhou": {
+                "SUSE12SP4-SAP": "m-bp11nv53mkrq6va2z2zb",
+                "SUSE12SP3-SAP": "m-bp12rkdt0g3fb0z38xch",
+                "SUSE15SP1-SAP": "m-bp196g0zi82d442n5y92"
+            },
+            "cn-shanghai": {
+                "SUSE12SP4-SAP": "m-uf6de7vp44isn89p4bft",
+                "SUSE12SP3-SAP": "m-uf6h5698n0gt6rawcp9r",
+                "SUSE15SP1-SAP": "m-uf6ifjfz4au8nvckba4x"
+            },
+            "cn-shenzhen": {
+                "SUSE12SP4-SAP": "m-wz9guce5swcqvrccis2e",
+                "SUSE12SP3-SAP": "m-wz92rkdt0g3fb0z38xcg",
+                "SUSE15SP1-SAP": "m-wz996g0zi82d442n5y93"
+            },
+            "cn-heyuan": {
+                "SUSE12SP4-SAP": "Unsupported-Image",
+                "SUSE12SP3-SAP": "Unsupported-Image",
+                "SUSE15SP1-SAP": "Unsupported-Image"
+            },
+            "cn-chengdu": {
+                "SUSE12SP4-SAP": "m-2vccs9eajplyeaqxr5tb",
+                "SUSE12SP3-SAP": "Unsupported-Image",
+                "SUSE15SP1-SAP": "m-2vceekrbnfftern2uxct"
+            },
+            "cn-hongkong": {
+                "SUSE12SP4-SAP": "m-j6c8f0m7l9efst19988o",
+                "SUSE12SP3-SAP": "m-j6casiagee9if1dkqywx",
+                "SUSE15SP1-SAP": "m-j6c1ej7p1yh805sosgrb"
+            },
+            "ap-northeast-1": {
+                "SUSE12SP4-SAP": "m-6weakspx47fnlcvkrn91",
+                "SUSE12SP3-SAP": "Unsupported-Image",
+                "SUSE15SP1-SAP": "m-6we9k36kipbe9vfcy583"
+            },
+            "ap-southeast-1": {
+                "SUSE12SP4-SAP": "m-t4ner8q8f91dqyqoufpu",
+                "SUSE12SP3-SAP": "Unsupported-Image",
+                "SUSE15SP1-SAP": "m-t4n35vxo2oitf0i016ab"
+            },
+            "ap-southeast-2": {
+                "SUSE12SP4-SAP": "m-p0w26r3mz7ftsmcq1kdp",
+                "SUSE12SP3-SAP": "Unsupported-Image",
+                "SUSE15SP1-SAP": "m-p0w94uio40f3n6a14uqt"
+            },
+            "ap-southeast-3": {
+                "SUSE12SP4-SAP": "m-8psblys0tnaeagmnffct",
+                "SUSE12SP3-SAP": "Unsupported-Image",
+                "SUSE15SP1-SAP": "m-8psfatxudexdtp7qqplq"
+            },
+            "ap-southeast-5": {
+                "SUSE12SP4-SAP": "m-k1acfsasdquoq5c92irt",
+                "SUSE12SP3-SAP": "Unsupported-Image",
+                "SUSE15SP1-SAP": "m-k1abkwbvlfhxfieshisg"
+            },
+            "ap-south-1": {
+                "SUSE12SP4-SAP": "m-a2d4ls002xqtzhy4md2f",
+                "SUSE12SP3-SAP": "Unsupported-Image",
+                "SUSE15SP1-SAP": "m-a2dc3p1oqba2i52bjbvj"
+            },
+            "us-east-1": {
+                "SUSE12SP4-SAP": "m-0xii030hn7pshhbsi3j4",
+                "SUSE12SP3-SAP": "Unsupported-Image",
+                "SUSE15SP1-SAP": "m-0xi8viqv1vrlp3ct3rpu"
+            },
+            "us-west-1": {
+                "SUSE12SP4-SAP": "m-rj9c7vpp1patww4rrprk",
+                "SUSE12SP3-SAP": "Unsupported-Image",
+                "SUSE15SP1-SAP": "m-rj968y2crd2ymqk6hgj7"
+            },
+            "eu-west-1": {
+                "SUSE12SP4-SAP": "m-d7ob1p0m34mloybq07a0",
+                "SUSE12SP3-SAP": "Unsupported-Image",
+                "SUSE15SP1-SAP": "m-d7ofr2e7j100993arbq9"
+            },
+            "me-east-1": {
+                "SUSE12SP4-SAP": "m-eb3i3zwnm5gzg10vkfsq",
+                "SUSE12SP3-SAP": "Unsupported-Image",
+                "SUSE15SP1-SAP": "m-eb39h02ud7jo1e588d0v"
+            },
+            "eu-central-1": {
+                "SUSE12SP4-SAP": "m-gw8c7cjngwx3mv32ogos",
+                "SUSE12SP3-SAP": "Unsupported-Image",
+                "SUSE15SP1-SAP": "m-gw8jday6pwvm0okw0a6m"
+            }
+        },
+        "ImageMap-International": {
+            "cn-qingdao": {
+                "SUSE15SP1-SAP": "m-m5e5gw9a3y5tgjzqdkh1",
+                "SUSE12SP4-SAP": "m-m5e3hc48hr7dbvh6xf5m",
+                "SUSE12SP2-SAP": "Unsupported-Image"
+            },
+            "cn-beijing": {
+                "SUSE15SP1-SAP": "m-2ze7nvda4urdmfd8fu00",
+                "SUSE12SP4-SAP": "m-2ze0nbdyhr7tjqljrrjp",
+                "SUSE12SP2-SAP": "m-2zehi23fn35ph5wofyrk"
+            },
+            "cn-zhangjiakou": {
+                "SUSE15SP1-SAP": "m-8vb2egpm4vm0vxpqz1w3",
+                "SUSE12SP4-SAP": "m-8vb4mqlomnjl6tepng24",
+                "SUSE12SP2-SAP": "Unsupported-Image"
+            },
+            "cn-huhehaote": {
+                "SUSE15SP1-SAP": "m-hp396vl6ogficmshxsjv",
+                "SUSE12SP4-SAP": "m-hp3abm1yx5o7ei0g3d6s",
+                "SUSE12SP2-SAP": "Unsupported-Image"
+            },
+            "cn-hangzhou": {
+                "SUSE15SP1-SAP": "m-bp18viqv1vrlp3ct3rpt",
+                "SUSE12SP4-SAP": "m-bp11yfsmm8z1e2g1i2gs",
+                "SUSE12SP2-SAP": "m-bp12vt3bzcu7kaovrgsq"
+            },
+            "cn-shanghai": {
+                "SUSE15SP1-SAP": "m-uf65gw9a3y5tgjzqdkh3",
+                "SUSE12SP4-SAP": "m-uf6792fthru7lokgr2k8",
+                "SUSE12SP2-SAP": "m-uf6hi23fn35ph5wofyrj"
+            },
+            "cn-shenzhen": {
+                "SUSE15SP1-SAP": "m-wz98viqv1vrlp3ct3rpw",
+                "SUSE12SP4-SAP": "m-wz9h5hx9vyg8c0m0yseb",
+                "SUSE12SP2-SAP": "Unsupported-Image"
+            },
+            "cn-heyuan": {
+                "SUSE15SP1-SAP": "Unsupported-Image",
+                "SUSE12SP4-SAP": "Unsupported-Image",
+                "SUSE12SP2-SAP": "Unsupported-Image"
+            },
+            "cn-chengdu": {
+                "SUSE15SP1-SAP": "Unsupported-Image",
+                "SUSE12SP4-SAP": "Unsupported-Image",
+                "SUSE12SP2-SAP": "Unsupported-Image"
+            },
+            "cn-hongkong": {
+                "SUSE15SP1-SAP": "m-j6c4a7xie8es0b5if4vb",
+                "SUSE12SP4-SAP": "m-j6c6nkpp8po91goeklzd",
+                "SUSE12SP2-SAP": "Unsupported-Image"
+            },
+            "ap-northeast-1": {
+                "SUSE15SP1-SAP": "m-6wehn3moet20y98luh3d",
+                "SUSE12SP4-SAP": "m-6wee0vtnrmrgiqpzhxal",
+                "SUSE12SP2-SAP": "m-6we5onkj2r81vrd8cbk0"
+            },
+            "ap-southeast-1": {
+                "SUSE15SP1-SAP": "m-t4n9qi8t0tvdxwc9isv1",
+                "SUSE12SP4-SAP": "m-t4n8zauwtmx8we5krnle",
+                "SUSE12SP2-SAP": "Unsupported-Image"
+            },
+            "ap-southeast-2": {
+                "SUSE15SP1-SAP": "m-p0w94uio40f3n4b00sro",
+                "SUSE12SP4-SAP": "m-p0wj8eujncydsvje72y6",
+                "SUSE12SP2-SAP": "m-p0w8d7fplc8r1shcxgu5"
+            },
+            "ap-southeast-3": {
+                "SUSE15SP1-SAP": "m-8ps4g1503iji7596hren",
+                "SUSE12SP4-SAP": "m-8ps25ffdueug1c369ssu",
+                "SUSE12SP2-SAP": "Unsupported-Image"
+            },
+            "ap-southeast-5": {
+                "SUSE15SP1-SAP": "m-k1abkwbvlfhxfieshish",
+                "SUSE12SP4-SAP": "m-k1aahqraspev9u1hwji5",
+                "SUSE12SP2-SAP": "m-k1a4lbunomoylni6eu7s"
+            },
+            "ap-south-1": {
+                "SUSE15SP1-SAP": "m-a2d3dpk4n9b0kzc962x7",
+                "SUSE12SP4-SAP": "m-a2ddi4nczo74c33cdypn",
+                "SUSE12SP2-SAP": "m-a2d6kqlwc6ubrq0rmgm2"
+            },
+            "us-east-1": {
+                "SUSE15SP1-SAP": "m-0xibc3g3b033a3or2nef",
+                "SUSE12SP4-SAP": "m-0xi8bvlc0pad0gzmw2gz",
+                "SUSE12SP2-SAP": "Unsupported-Image"
+            },
+            "us-west-1": {
+                "SUSE15SP1-SAP": "m-rj97nvda4urdmhc9jvz5",
+                "SUSE12SP4-SAP": "m-rj90q83mb4spvmgvll5t",
+                "SUSE12SP2-SAP": "Unsupported-Image"
+            },
+            "eu-west-1": {
+                "SUSE15SP1-SAP": "m-d7ofr2e7j1009749n9r4",
+                "SUSE12SP4-SAP": "m-d7oeu4ln7cr86q4xxdk0",
+                "SUSE12SP2-SAP": "m-d7o68fojryhbraf0ev6o"
+            },
+            "me-east-1": {
+                "SUSE15SP1-SAP": "m-eb34jgxzzzcqxzhqjtxw",
+                "SUSE12SP4-SAP": "m-eb3isthca99jyq4scsvr",
+                "SUSE12SP2-SAP": "m-eb30vsuh6lbbekfmpb7c"
+            },
+            "eu-central-1": {
+                "SUSE15SP1-SAP": "m-gw88oi8otckfgkdrrufm",
+                "SUSE12SP4-SAP": "Unsupported-Image",
+                "SUSE12SP2-SAP": "m-gw8ddq8bthtcccrauyim"
+            }
+        },
+        "InstanceTypeMap": {
+            "ecs.c5.large(2vCPUs 4GiB)": {
+                "InstanceTypeId": "ecs.c5.large"
+            },
+            "ecs.c5.xlarge(4vCPUs 8GiB)": {
+                "InstanceTypeId": "ecs.c5.xlarge"
+            },
+            "ecs.c5.8xlarge(32vCPUs 64GiB)": {
+                "InstanceTypeId": "ecs.c5.8xlarge"
+            },
+            "ecs.g5.2xlarge(8vCPUs 30GiB)": {
+                "InstanceTypeId": "ecs.g5.2xlarge"
+            },
+            "ecs.g5.3xlarge(12vCPUs 48GiB)": {
+                "InstanceTypeId": "ecs.g5.3xlarge"
+            },
+            "ecs.g5.4xlarge(16vCPUs 64GiB)": {
+                "InstanceTypeId": "ecs.g5.4xlarge"
+            },
+            "ecs.g5.6xlarge(24vCPUs 96GiB)": {
+                "InstanceTypeId": "ecs.g5.6xlarge"
+            },
+            "ecs.g5.8xlarge(32vCPUs 128GiB)": {
+                "InstanceTypeId": "ecs.g5.8xlarge"
+            },
+            "ecs.g5.large(2vCPUs 8GiB)": {
+                "InstanceTypeId": "ecs.g5.large"
+            },
+            "ecs.g5.xlarge(4vCPUs 16GiB)": {
+                "InstanceTypeId": "ecs.g5.xlarge"
+            },
+            "ecs.g6.large(2vCPUs 8GiB)": {
+                "InstanceTypeId": "ecs.g6.large"
+            },
+            "ecs.g6.xlarge(4vCPUs 16GiB)": {
+                "InstanceTypeId": "ecs.g6.xlarge"
+            },
+            "ecs.g6.2xlarge(8vCPUs 32GiB)": {
+                "InstanceTypeId": "ecs.g6.2xlarge"
+            },
+            "ecs.g6.3xlarge(12vCPUs 48GiB)": {
+                "InstanceTypeId": "ecs.g6.3xlarge"
+            },
+            "ecs.g6.4xlarge(16vCPUs 64GiB)": {
+                "InstanceTypeId": "ecs.g6.4xlarge"
+            },
+            "ecs.g6.6xlarge(24vCPUs 96GiB)": {
+                "InstanceTypeId": "ecs.g6.6xlarge"
+            },
+            "ecs.g6.8xlarge(32vCPUs 128GiB)": {
+                "InstanceTypeId": "ecs.g6.8xlarge"
+            },
+            "ecs.r5.16xlarge(64vCPUs 512GiB)": {
+                "InstanceTypeId": "ecs.r5.16xlarge"
+            },
+            "ecs.r5.2xlarge(8vCPUs 64GiB)": {
+                "InstanceTypeId": "ecs.r5.2xlarge"
+            },
+            "ecs.r5.3xlarge(12vCPUs 96GiB)": {
+                "InstanceTypeId": "ecs.r5.3xlarge"
+            },
+            "ecs.r5.4xlarge(16vCPUs 128GiB)": {
+                "InstanceTypeId": "ecs.r5.4xlarge"
+            },
+            "ecs.r5.6xlarge(24vCPUs 192GiB)": {
+                "InstanceTypeId": "ecs.r5.6xlarge"
+            },
+            "ecs.r5.8xlarge(32vCPUs 256GiB)": {
+                "InstanceTypeId": "ecs.r5.8xlarge"
+            },
+            "ecs.r5.large(2vCPUs 16GiB)": {
+                "InstanceTypeId": "ecs.r5.large"
+            },
+            "ecs.r5.xlarge(4vCPUs 32GiB)": {
+                "InstanceTypeId": "ecs.r5.xlarge"
+            },
+            "ecs.r6.large(2vCPUs 16GiB)": {
+                "InstanceTypeId": "ecs.r6.large"
+            },
+            "ecs.r6.xlarge(4vCPUs 32GiB)": {
+                "InstanceTypeId": "ecs.r6.xlarge"
+            },
+            "ecs.r6.2xlarge(8vCPUs 64GiB)": {
+                "InstanceTypeId": "ecs.r6.2xlarge"
+            },
+            "ecs.r6.3xlarge(12vCPUs 96GiB)": {
+                "InstanceTypeId": "ecs.r6.3xlarge"
+            },
+            "ecs.r6.4xlarge(16vCPUs 128GiB)": {
+                "InstanceTypeId": "ecs.r6.4xlarge"
+            },
+            "ecs.r6.6xlarge(24vCPUs 192GiB)": {
+                "InstanceTypeId": "ecs.r6.6xlarge"
+            },
+            "ecs.r6.8xlarge(32vCPUs 256GiB)": {
+                "InstanceTypeId": "ecs.r6.8xlarge"
+            },
+            "ecs.r6.13xlarge(52vCPUs 384GiB)": {
+                "InstanceTypeId": "ecs.r6.13xlarge"
+            },
+            "ecs.re4.20xlarge(80vCPUs 960GiB)": {
+                "InstanceTypeId": "ecs.re4.20xlarge"
+            },
+            "ecs.re4.40xlarge(160vCPUs 1920GiB)": {
+                "InstanceTypeId": "ecs.re4.40xlarge"
+            },
+            "ecs.re4e.40xlarge(160vCPUs 3840GiB)": {
+                "InstanceTypeId": "ecs.re4e.40xlarge"
+            },
+            "ecs.se1.14xlarge(56vCPUs 480GiB)": {
+                "InstanceTypeId": "ecs.se1.14xlarge"
+            },
+            "ecs.sn1ne.large(2vCPUs 4GiB)": {
+                "InstanceTypeId": "ecs.sn1ne.large"
+            },
+            "ecs.sn1ne.xlarge(4vCPUs 8GiB)": {
+                "InstanceTypeId": "ecs.sn1ne.xlarge"
+            },
+            "ecs.sn2ne.14xlarge (56vCPUs 224GiB)": {
+                "InstanceTypeId": "ecs.sn2ne.14xlarge "
+            },
+            "ecs.sn2ne.2xlarge(8vCPUs 32GiB)": {
+                "InstanceTypeId": "ecs.sn2ne.2xlarge"
+            },
+            "ecs.sn2ne.3xlarge(12vCPUs 48GiB)": {
+                "InstanceTypeId": "ecs.sn2ne.3xlarge"
+            },
+            "ecs.sn2ne.4xlarge(16vCPUs 64GiB)": {
+                "InstanceTypeId": "ecs.sn2ne.4xlarge"
+            },
+            "ecs.sn2ne.6xlarge(24vCPUs 96GiB)": {
+                "InstanceTypeId": "ecs.sn2ne.6xlarge"
+            },
+            "ecs.sn2ne.8xlarge(32vCPUs 128GiB)": {
+                "InstanceTypeId": "ecs.sn2ne.8xlarge"
+            },
+            "ecs.sn2ne.large(2vCPUs 8GiB)": {
+                "InstanceTypeId": "ecs.sn2ne.large"
+            },
+            "ecs.sn2ne.xlarge(4vCPUs 16GiB)": {
+                "InstanceTypeId": "ecs.sn2ne.xlarge"
+            },
+            "ecs.ebmre6-6t.52xlarge(208vCPUs 6144GiB)": {
+                "InstanceTypeId": "ecs.ebmre6-6t.52xlarge"
+            }
+        }
+    },
+    "Resources": {
+        "RosRole": {
+            "Type": "ALIYUN::RAM::Role",
+            "Properties": {
+                "RoleName": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "SAPRole-",
+                            {
+                                "Ref": "ALIYUN::StackId"
+                            }
+                        ]
+                    ]
+                },
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ecs.aliyuncs.com"
+                                ]
+                            }
+                        }
+                    ],
+                    "Version": "1"
+                },
+                "Policies": [
+                    {
+                        "PolicyName": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "SAPRolePolicy-",
+                                    {
+                                        "Ref": "ALIYUN::StackId"
+                                    }
+                                ]
+                            ]
+                        },
+                        "PolicyDocument": {
+                            "Statement": [
+                                {
+                                    "Action": [
+                                        "oss:Get*",
+                                        "oss:List*"
+                                    ],
+                                    "Effect": "Allow",
+                                    "Resource": [
+                                        "*"
+                                    ]
+                                }
+                            ],
+                            "Version": "1"
+                        }
+                    }
+                ]
+            }
+        },
+        "AttachMCPolicyToRole1": {
+            "Type": "ALIYUN::RAM::AttachPolicyToRole",
+            "Properties": {
+                "PolicyType": "System",
+                "RoleName": {
+                    "Fn::GetAtt": [
+                        "RosRole",
+                        "RoleName"
+                    ]
+                },
+                "PolicyName": "AliyunECSReadOnlyAccess"
+            }
+        },
+        "AttachMCPolicyToRole2": {
+            "Type": "ALIYUN::RAM::AttachPolicyToRole",
+            "Properties": {
+                "PolicyType": "System",
+                "RoleName": {
+                    "Fn::GetAtt": [
+                        "RosRole",
+                        "RoleName"
+                    ]
+                },
+                "PolicyName": "AliyunCloudMonitorReadOnlyAccess"
+            }
+        },
+        "AttachMCPolicyToRole3": {
+            "Type": "ALIYUN::RAM::AttachPolicyToRole",
+            "Properties": {
+                "PolicyType": "System",
+                "RoleName": {
+                    "Fn::GetAtt": [
+                        "RosRole",
+                        "RoleName"
+                    ]
+                },
+                "PolicyName": "AliyunECSAccessingHBRRolePolicy"
+            }
+        },
+        "HANAServer": {
+            "Type": "ALIYUN::ECS::Instance",
+            "Properties": {
+                "ZoneId": {
+                    "Ref": "ZoneId"
+                },
+                "IoOptimized": "optimized",
+                "HostName": {
+                    "Ref": "ECSHostname"
+                },
+                "InstanceType": {
+                    "Fn::FindInMap": [
+                        "InstanceTypeMap",
+                        {
+                            "Ref": "InstanceType"
+                        },
+                        "InstanceTypeId"
+                    ]
+                },
+                "ImageId": {
+                    "Fn::If": [
+                        "CustomizedImageCondition",
+                        {
+                            "Ref": "CustomizedImageId"
+                        },
+                        {
+                            "Fn::FindInMap": [
+                                {
+                                    "Fn::Join": [
+                                        "-",
+                                        [
+                                            "ImageMap",
+                                            {
+                                                "Ref": "Site"
+                                            }
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "Ref": "ALIYUN::Region"
+                                },
+                                {
+                                    "Ref": "ImageId"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "SystemDiskSize": {
+                    "Ref": "SystemDiskSize"
+                },
+                "SystemDiskCategory": {
+                    "Ref": "SystemDiskCategory"
+                },
+                "DiskMappings": [
+                    {
+                        "Category": {
+                            "Fn::FindInMap": [
+                                "DiskCategoryMap",
+                                {
+                                    "Ref": "DataLogDiskCategory"
+                                },
+                                "Category"
+                            ]
+                        },
+                        "PerformanceLevel": {
+                            "Fn::FindInMap": [
+                                "DiskCategoryMap",
+                                {
+                                    "Ref": "DataLogDiskCategory"
+                                },
+                                "PerformanceLevel"
+                            ]
+                        },
+                        "Device": "/dev/xvdb",
+                        "Size": {
+                            "Fn::Str": {
+                                "Fn::Avg": [
+                                    0,
+                                    [
+                                        {
+                                            "Ref": "LogSize"
+                                        },
+                                        {
+                                            "Ref": "DataSize"
+                                        }
+                                    ]
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "Category": {
+                            "Fn::FindInMap": [
+                                "DiskCategoryMap",
+                                {
+                                    "Ref": "DataLogDiskCategory"
+                                },
+                                "Category"
+                            ]
+                        },
+                        "PerformanceLevel": {
+                            "Fn::FindInMap": [
+                                "DiskCategoryMap",
+                                {
+                                    "Ref": "DataLogDiskCategory"
+                                },
+                                "PerformanceLevel"
+                            ]
+                        },
+                        "Device": "/dev/xvdc",
+                        "Size": {
+                            "Fn::Str": {
+                                "Fn::Avg": [
+                                    0,
+                                    [
+                                        {
+                                            "Ref": "LogSize"
+                                        },
+                                        {
+                                            "Ref": "DataSize"
+                                        }
+                                    ]
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "Category": {
+                            "Ref": "SharedDiskCategory"
+                        },
+                        "Device": "/dev/xvdd",
+                        "Size": {
+                            "Ref": "SharedSize"
+                        }
+                    },
+                    {
+                        "Category": {
+                            "Ref": "UsrsapDiskCategory"
+                        },
+                        "Device": "/dev/xvde",
+                        "Size": {
+                            "Ref": "UsrsapSize"
+                        }
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "VSwitchId": {
+                    "Ref": "VSwitchId"
+                },
+                "AllocatePublicIP": true,
+                "PrivateIpAddress": {
+                    "Ref": "PrivateIpAddress"
+                },
+                "SecurityGroupId": {
+                    "Ref": "HANASecurityGroup"
+                },
+                "Password": {
+                    "Ref": "LoginPassword"
+                },
+                "RamRoleName": {
+                    "Fn::GetAtt": [
+                        "RosRole",
+                        "RoleName"
+                    ]
+                },
+                "UserData": {
+                    "Fn::Replace": [
+                        {
+                            "ros-notify": {
+                                "Fn::GetAtt": [
+                                    "ServerCloudInitWaitCondHandle",
+                                    "CurlCli"
+                                ]
+                            }
+                        },
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "#!/bin/bash\n",
+                                    "LoginPassword=",
+                                    {
+                                        "Ref": "LoginPassword"
+                                    },
+                                    "\n",
+                                    "MasterPass=",
+                                    {
+                                        "Ref": "MasterPass"
+                                    },
+                                    "\n",
+                                    "HANASID=",
+                                    {
+                                        "Ref": "HANASID"
+                                    },
+                                    "\n",
+                                    "HANAInstanceNumber=",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "\n",
+                                    "DataSize=",
+                                    {
+                                        "Ref": "DataSize"
+                                    },
+                                    "\n",
+                                    "LogSize=",
+                                    {
+                                        "Ref": "LogSize"
+                                    },
+                                    "\n",
+                                    "SharedSize=",
+                                    {
+                                        "Ref": "SharedSize"
+                                    },
+                                    "\n",
+                                    "UsrsapSize=",
+                                    {
+                                        "Ref": "UsrsapSize"
+                                    },
+                                    "\n",
+                                    "MediaPath=",
+                                    {
+                                        "Ref": "MediaPath"
+                                    },
+                                    "\n",
+                                    "HANASapSidAdmUid=",
+                                    {
+                                        "Ref": "HANASapSidAdmUid"
+                                    },
+                                    "\n",
+                                    "HANASapSysGid=",
+                                    {
+                                        "Ref": "HANASapSysGid"
+                                    },
+                                    "\n",
+                                    "SystemUsage=",
+                                    {
+                                        "Ref": "SystemUsage"
+                                    },
+                                    "\n",
+                                    "AutomationBucketName=",
+                                    {
+                                        "Fn::If": [
+                                            "AutomationProviderCondition",
+                                            {
+                                                "Fn::Join": [
+                                                    "",
+                                                    [
+                                                        {
+                                                            "Ref": "AutomationProvider"
+                                                        },
+                                                        "-",
+                                                        {
+                                                            "Ref": "ALIYUN::Region"
+                                                        }
+                                                    ]
+                                                ]
+                                            },
+                                            {
+                                                "Ref": "AutomationProvider"
+                                            }
+                                        ]
+                                    },
+                                    "\n",
+                                    "export QUICKSTART_SAP_REGION=$(curl \"http://100.100.100.200/2016-01-01/meta-data/region-id\")\n",
+                                    "export QUICKSTART_SAP_LOG_DIR='/var/log/alibabacloud-quickstart-sap'\n",
+                                    "export QUICKSTART_SAP_INSTALL_LOG=\"${QUICKSTART_SAP_LOG_DIR}/Install.log\"\n",
+                                    "export QUICKSTART_SAP_ERROR_LOG=\"${QUICKSTART_SAP_LOG_DIR}/Error.log\"\n",
+                                    "export QUICKSTART_SAP_SCRIPT_DIR='/tmp/alibabacloud-quickstart-sap'\n",
+                                    "export QUICKSTART_SAP_INSTALL_INPUT_PATH=\"${QUICKSTART_SAP_SCRIPT_DIR}/quickstart_sap_input_parameter.cfg\"\n",
+                                    "export QUICKSTART_SAP_VERSION=\"v1\"\n",
+                                    "export QUICKSTART_SAP_FUNCTIONS_SCRIPT_URL=\"http://${AutomationBucketName}.oss-${QUICKSTART_SAP_REGION}.aliyuncs.com/alibabacloud-quickstart/${QUICKSTART_SAP_VERSION}/sap-common/scripts/functions.sh\"\n",
+                                    "export QUICKSTART_SAP_INSTALL_SCRIPT_URL=\"http://${AutomationBucketName}.oss-${QUICKSTART_SAP_REGION}.aliyuncs.com/alibabacloud-quickstart/${QUICKSTART_SAP_VERSION}/sap-hana/sap-hana-single-node/scripts/sap_hana_single_node.sh\"\n",
+                                    "grep -q \"nameserver 100.100.2.138\" /etc/resolv.conf || sed -i '$a nameserver 100.100.2.138' /etc/resolv.conf\n",
+                                    "grep -q \"nameserver 100.100.2.136\" /etc/resolv.conf || sed -i '$a nameserver 100.100.2.136' /etc/resolv.conf\n",
+                                    "mkdir -p ${QUICKSTART_SAP_SCRIPT_DIR}\n",
+                                    "cd ${QUICKSTART_SAP_SCRIPT_DIR} && wget ${QUICKSTART_SAP_INSTALL_SCRIPT_URL} -O \"Install.sh\"\n",
+                                    "wget ${QUICKSTART_SAP_FUNCTIONS_SCRIPT_URL} -O \"functions.sh\"\n",
+                                    "if [[ ! -s \"${QUICKSTART_SAP_SCRIPT_DIR}/Install.sh\" ]] || [[ ! -s \"${QUICKSTART_SAP_SCRIPT_DIR}/functions.sh\" ]];then\n",
+                                    "    ros-notify -d \"{\\\"id\\\" : \\\"HANANode\\\", \\\"Data\\\" : \\\"Failed to download installation script.\\\", \\\"reason\\\" : \\\"Failed to download installation script.\\\", \\\"status\\\" : \\\"FAILURE\\\"}\"\n",
+                                    "    exit 0\n",
+                                    "fi\n",
+                                    "chmod -R 777 ${QUICKSTART_SAP_SCRIPT_DIR}/Install.sh\n",
+                                    "cat << EOF > ${QUICKSTART_SAP_INSTALL_INPUT_PATH}\n",
+                                    "LoginPassword=${LoginPassword}\n",
+                                    "MasterPass=${MasterPass}\n",
+                                    "HANASID=${HANASID}\n",
+                                    "HANAInstanceNumber=${HANAInstanceNumber}\n",
+                                    "DataSize=${DataSize}\n",
+                                    "LogSize=${LogSize}\n",
+                                    "SharedSize=${SharedSize}\n",
+                                    "UsrsapSize=${UsrsapSize}\n",
+                                    "DiskIdsStriping='vdb vdc'\n",
+                                    "DiskIdShared=vdd\n",
+                                    "DiskIdUsrSap=vde\n",
+                                    "MediaPath=${MediaPath}\n",
+                                    "HANASapSidAdmUid=${HANASapSidAdmUid}\n",
+                                    "HANASapSysGid=${HANASapSysGid}\n",
+                                    "SystemUsage=${SystemUsage}\n",
+                                    "AutomationBucketName=${AutomationBucketName}\n",
+                                    "EOF\n",
+                                    "${QUICKSTART_SAP_SCRIPT_DIR}/Install.sh -f ${QUICKSTART_SAP_INSTALL_INPUT_PATH} -s 0\n",
+                                    "if [ $? = \"0\" ];then\n",
+                                    "    ros-notify -d \"{\\\"id\\\" : \\\"HANANode\\\", \\\"Data\\\" : \\\"SUCCESS\\\", \\\"status\\\" : \\\"SUCCESS\\\"}\"\n",
+                                    "else\n",
+                                    "    failed_info=$(tail -5 ${QUICKSTART_SAP_ERROR_LOG} | xargs)\n",
+                                    "    ros-notify -d \"{\\\"id\\\" : \\\"HANANode\\\", \\\"Data\\\" : \\\"ErrorLog(Only the last five lines):$failed_info\\\", \\\"reason\\\": \\\"$failed_info\\\", \\\"status\\\" : \\\"FAILURE\\\"}\"\n",
+                                    "fi\n",
+                                    "rm -rf ${QUICKSTART_SAP_SCRIPT_DIR}\n",
+                                    ":> /var/lib/cloud/instance/user-data.txt.i\n",
+                                    ":> /var/lib/cloud/instance/user-data.txt\n",
+                                    ":> /var/lib/cloud/instance/scripts/part-001\n"
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                "InternetMaxBandwidthOut": 5,
+                "InternetMaxBandwidthIn": 200,
+                "KeyPairName": {
+                    "Ref": "SSHKeyPair"
+                }
+            }
+        },
+        "ServerCloudInitWaitCondHandle": {
+            "Type": "ALIYUN::ROS::WaitConditionHandle"
+        },
+        "ServerCloudInitWaitCond": {
+            "Type": "ALIYUN::ROS::WaitCondition",
+            "Properties": {
+                "Timeout": 7200,
+                "Count": 1,
+                "Handle": {
+                    "Ref": "ServerCloudInitWaitCondHandle"
+                }
+            }
+        },
+        "HANASecurityGroup": {
+            "Type": "ALIYUN::ECS::SecurityGroup",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "SecurityGroupName": "hana_sg",
+                "SecurityGroupIngress": [
+                    {
+                        "PortRange": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "5",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "13",
+                                    "/",
+                                    "5",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "13"
+                                ]
+                            ]
+                        },
+                        "Priority": 1,
+                        "SourceCidrIp": "0.0.0.0/0",
+                        "IpProtocol": "tcp",
+                        "NicType": "intranet"
+                    },
+                    {
+                        "PortRange": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "5",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "14",
+                                    "/",
+                                    "5",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "14"
+                                ]
+                            ]
+                        },
+                        "Priority": 1,
+                        "SourceCidrIp": "0.0.0.0/0",
+                        "IpProtocol": "tcp",
+                        "NicType": "intranet"
+                    },
+                    {
+                        "PortRange": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "3",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "13",
+                                    "/",
+                                    "3",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "13"
+                                ]
+                            ]
+                        },
+                        "Priority": 1,
+                        "SourceCidrIp": "0.0.0.0/0",
+                        "IpProtocol": "tcp",
+                        "NicType": "intranet"
+                    },
+                    {
+                        "PortRange": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "3",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "15",
+                                    "/",
+                                    "3",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "15"
+                                ]
+                            ]
+                        },
+                        "Priority": 1,
+                        "SourceCidrIp": "0.0.0.0/0",
+                        "IpProtocol": "tcp",
+                        "NicType": "intranet"
+                    },
+                    {
+                        "PortRange": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "3",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "17",
+                                    "/",
+                                    "3",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "17"
+                                ]
+                            ]
+                        },
+                        "Priority": 1,
+                        "SourceCidrIp": "0.0.0.0/0",
+                        "IpProtocol": "tcp",
+                        "NicType": "intranet"
+                    },
+                    {
+                        "PortRange": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "3",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "41",
+                                    "/",
+                                    "3",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "44"
+                                ]
+                            ]
+                        },
+                        "Priority": 1,
+                        "SourceCidrIp": "0.0.0.0/0",
+                        "IpProtocol": "tcp",
+                        "NicType": "intranet"
+                    },
+                    {
+                        "PortRange": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "80",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "/",
+                                    "80",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    }
+                                ]
+                            ]
+                        },
+                        "Priority": 1,
+                        "SourceCidrIp": "0.0.0.0/0",
+                        "IpProtocol": "tcp",
+                        "NicType": "intranet"
+                    },
+                    {
+                        "PortRange": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "43",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    },
+                                    "/",
+                                    "43",
+                                    {
+                                        "Ref": "HANAInstanceNumber"
+                                    }
+                                ]
+                            ]
+                        },
+                        "Priority": 1,
+                        "SourceCidrIp": "0.0.0.0/0",
+                        "IpProtocol": "tcp",
+                        "NicType": "intranet"
+                    },
+                    {
+                        "PortRange": "7630/7630",
+                        "Priority": 1,
+                        "SourceCidrIp": "0.0.0.0/0",
+                        "IpProtocol": "tcp",
+                        "NicType": "intranet"
+                    },
+                    {
+                        "PortRange": "8080/8080",
+                        "Priority": 1,
+                        "SourceCidrIp": "0.0.0.0/0",
+                        "IpProtocol": "tcp",
+                        "NicType": "intranet"
+                    },
+                    {
+                        "PortRange": "8443/8443",
+                        "Priority": 1,
+                        "SourceCidrIp": "0.0.0.0/0",
+                        "IpProtocol": "tcp",
+                        "NicType": "intranet"
+                    },
+                    {
+                        "PortRange": "1128/1129",
+                        "Priority": 1,
+                        "SourceCidrIp": "0.0.0.0/0",
+                        "IpProtocol": "tcp",
+                        "NicType": "intranet"
+                    },
+                    {
+                        "PortRange": "22/22",
+                        "Priority": 1,
+                        "SourceCidrIp": "0.0.0.0/0",
+                        "IpProtocol": "tcp",
+                        "NicType": "intranet"
+                    },
+                    {
+                        "PortRange": "-1/-1",
+                        "Priority": 1,
+                        "SourceCidrIp": "0.0.0.0/0",
+                        "IpProtocol": "icmp",
+                        "NicType": "intranet"
+                    }
+                ]
+            }
+        },
+        "CommonResources": {
+            "Type": "ALIYUN::ROS::Stack",
+            "Properties": {
+                "TemplateURL": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "https://",
+                            {
+                                "Fn::If": [
+                                    "AutomationProviderCondition",
+                                    {
+                                        "Fn::Join": [
+                                            "",
+                                            [
+                                                {
+                                                    "Ref": "AutomationProvider"
+                                                },
+                                                "-",
+                                                {
+                                                    "Ref": "ALIYUN::Region"
+                                                }
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "Ref": "AutomationProvider"
+                                    }
+                                ]
+                            },
+                            ".oss-",
+                            {
+                                "Ref": "ALIYUN::Region"
+                            },
+                            ".aliyuncs.com/alibabacloud-quickstart/v1/sap-common/templates/Common_Resources.json"
+                        ]
+                    ]
+                },
+                "TimeoutMins": 10,
+                "Parameters": {
+                    "ZoneId": {
+                        "Ref": "ZoneId"
+                    },
+                    "VpcId": {
+                        "Ref": "VpcId"
+                    },
+                    "VSwitchId": {
+                        "Ref": "VSwitchId"
+                    },
+                    "LoginPassword": {
+                        "Ref": "LoginPassword"
+                    },
+                    "ActionTrailCondition": {
+                        "Ref": "ActionTrailCondition"
+                    },
+                    "ActionTrailOssBucketName": {
+                        "Ref": "ActionTrailOssBucketName"
+                    },
+                    "WindowsRDPImageId": {
+                        "Ref": "WindowsRDPImageId"
+                    },
+                    "WindowsRDPHostname": {
+                        "Ref": "WindowsRDPHostname"
+                    },
+                    "WindowsRDPCondition": {
+                        "Ref": "WindowsRDPCondition"
+                    },
+                    "WindowsRDPInstanceType": {
+                        "Ref": "WindowsRDPInstanceType"
+                    },
+                    "SystemDiskCategory": {
+                        "Ref": "SystemDiskCategory"
+                    }
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "InstallLog": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "ServerCloudInitWaitCond",
+                    "Data"
+                ]
+            }
+        },
+        "HANAServerId": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "HANAServer",
+                    "InstanceId"
+                ]
+            }
+        },
+        "HANAServerPrivateIP": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "HANAServer",
+                    "PrivateIp"
+                ]
+            }
+        },
+        "HANAServerPublicIP": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "HANAServer",
+                    "PublicIp"
+                ]
+            }
+        },
+        "WorkbenchConnection": {
+            "Value": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "<a href='",
+                        "https://ecs-workbench.aliyun.com/?regionId=",
+                        {
+                            "Ref": "ALIYUN::Region"
+                        },
+                        "&instanceId=",
+                        {
+                            "Fn::GetAtt": [
+                                "HANAServer",
+                                "InstanceId"
+                            ]
+                        },
+                        "' target='_blank'>Connect SAP HANA Server</a>"
+                    ]
+                ]
+            }
+        },
+        "WindowsRDPPublicIP": {
+            "Condition": "CreateWindowsRDPCondition",
+            "Value": {
+                "Fn::GetAtt": [
+                    "CommonResources",
+                    "Outputs.WindowsRDPPublicIP"
+                ]
+            }
+        }
+    }
+}

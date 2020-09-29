@@ -1,0 +1,1086 @@
+{
+    "ROSTemplateFormatVersion": "2015-09-01",
+    "Description": "HANA HA",
+    "Parameters": {
+        "ImageId": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "操作系统版本",
+                "en": "Operating system and version"
+            },
+            "Label": {
+                "zh-cn": "操作系统版本",
+                "en": "Operating System And Version"
+            },
+            "AllowedValues": [
+                "SUSE15SP1-SAP",
+                "SUSE12SP4-SAP",
+                "SUSE12SP2-SAP"
+            ]
+        },
+        "ZoneId": {
+            "Type": "String",
+            "AssociationProperty": "ALIYUN::ECS::Instance:ZoneId",
+            "Description": {
+                "zh-cn": "可用区列表请参考, <a href='https://help.aliyun.com/document_detail/40654.html' target='_blank'>地域和可用区信息</a>",
+                "en": "The Availability Zone where HANA instance will be deployed"
+            },
+            "Label": {
+                "zh-cn": "期望部署的可用区",
+                "en": "Availability Zones"
+            }
+        },
+        "VpcName": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "专有网络（VPC）名称，长度为2-128个字符，以大小字母或中文开头，可包含数字，_或-",
+                "en": "VPC name,the length is 2-128 characters, starting with a capital or lowercase letter , and can contain numbers, _ or -"
+            },
+            "Label": {
+                "zh-cn": "专有网络名称",
+                "en": "VPC Name"
+            },
+            "Default": "SAP_Nonprod_VPC",
+            "ConstraintDescription": {
+                "zh-cn": "长度为2-128个字符，以大小字母或中文开头，可包含数字，_或-",
+                "en": "The length is 2-128 characters, starting with a capital or lowercase letter , and can contain numbers, _ or -"
+            },
+            "MaxLength": 128,
+            "MinLength": 2,
+            "AllowedPattern": "^[a-zA-Z一-龥]+([\\w一-龥]|[-])+$"
+        },
+        "VpcCidrBlock": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "建议使用私网地址10.0.0.0/8、172.16.0.0/12、192.168.0.0/16作为专有网络的网段。",
+                "en": "The IP address range of the VPC in the CIDR block form. You can use the following IP address ranges and their subnets: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16."
+            },
+            "Label": {
+                "zh-cn": "目标网段",
+                "en": "VPC CIDR Block"
+            },
+            "Default": "10.0.0.0/8",
+            "AllowedValues": [
+                "10.0.0.0/8",
+                "172.16.0.0/12",
+                "192.168.0.0/16"
+            ]
+        },
+        "ActionTrailCondition": {
+            "Type": "Boolean",
+            "Description": {
+                "zh-cn": "是否添加操作审计（ActionTrail）功能",
+                "en": "Whether enable action trail function"
+            },
+            "Label": {
+                "zh-cn": "操作审计",
+                "en": "ActionTrail"
+            },
+            "Default": false
+        },
+        "ActionTrailOssBucketName": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "填写用于存储日志文件的已有的OSS bucket名称.例：mybucket",
+                "en": "Please create an OSS bucket for storage ActionTrail logs and input the bucket name.eg:mybucket"
+            },
+            "Label": {
+                "zh-cn": "日志存储Bucket Name",
+                "en": "Actiontrail Bucket Name"
+            },
+            "Default": ""
+        },
+        "WindowsRDPImageId": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "WindowsRDP操作系统版本",
+                "en": "Operating system and version"
+            },
+            "Label": {
+                "zh-cn": "WindowsRDP操作系统版本",
+                "en": "Operating System And Version"
+            },
+            "Default": "win2016",
+            "AllowedValues": [
+                "win2016",
+                "win2012",
+                "win2008"
+            ]
+        },
+        "WindowsRDPHostname": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "WindowsRDP的主机名",
+                "en": "Hostname of Windows RDP server"
+            },
+            "Label": {
+                "zh-cn": "WindowsRDP主机名",
+                "en": "Windows RDP Server"
+            },
+            "Default": "SAPWindowsRDP"
+        },
+        "WindowsRDPCondition": {
+            "Type": "Boolean",
+            "Description": {
+                "zh-cn": "是否需要创建WindowsRDP",
+                "en": "Whether enable windows RDP server"
+            },
+            "Label": {
+                "zh-cn": "WindowsRDP",
+                "en": "WindowsRDP"
+            },
+            "Default": false
+        },
+        "WindowsRDPInstanceType": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "<font color='blue'><b>1.选择机型前请先确认当前可用区下该机型是否有货，部分机型需要提前报备</b></font><br><font color='blue'><b>2.可选机型列表</b></font><br>[ecs.sn2ne.large<font color='green'>(2vCPUs,8GiB)</font>]<br>[ecs.sn2ne.xlarge<font color='green'>(4vCPUs,16GiB)</font>]<br>[ecs.sn1ne.large<font color='green'>(2vCPUs,4GiB)</font>]<br>[ecs.sn1ne.xlarge<font color='green'>(4vCPUs,8GiB)</font>]<br>[ecs.g5.large<font color='green'>(2vCPUs,8GiB)</font>]<br>[ecs.g5.xlarge<font color='green'>(4vCPUs,16GiB)</font>]<br>[ecs.c5.large<font color='green'>(2vCPUs,4GiB)</font>]<br>[ecs.c5.xlarge<font color='green'>(4vCPUs,8GiB)</font>]<br><font color='blue'>3.详情请参考</font><a href='https://help.aliyun.com/document_detail/25378.html'target='_blank'><b>实例族详情</b></a>",
+                "en": "<font color='blue'><b>Instance type list</b></font><br>[ecs.sn2ne.large<font color='green'>(2vCPUs,8GiB)</font>]<br>[ecs.sn2ne.xlarge<font color='green'>(4vCPUs,16GiB)</font>]<br>[ecs.sn1ne.large<font color='green'>(2vCPUs,4GiB)</font>]<br>[ecs.sn1ne.xlarge<font color='green'>(4vCPUs,8GiB)</font>]<br>[ecs.g5.large<font color='green'>(2vCPUs,8GiB)</font>]<br>[ecs.g5.xlarge<font color='green'>(4vCPUs,16GiB)</font>]<br>[ecs.c5.large<font color='green'>(2vCPUs,4GiB)</font>]<br>[ecs.c5.xlarge<font color='green'>(4vCPUs,8GiB)</font>"
+            },
+            "Label": {
+                "zh-cn": "跳板机机型",
+                "en": "WindowsRDP Instance Types"
+            },
+            "Default": "ecs.g5.large(2vCPUs 8GiB)",
+            "AllowedValues": [
+                "ecs.sn2ne.large(2vCPUs 8GiB)",
+                "ecs.sn2ne.xlarge(4vCPUs 16GiB)",
+                "ecs.sn1ne.large(2vCPUs 4GiB)",
+                "ecs.sn1ne.xlarge(4vCPUs 8GiB)",
+                "ecs.g5.large(2vCPUs 8GiB)",
+                "ecs.g5.xlarge(4vCPUs 16GiB)",
+                "ecs.c5.large(2vCPUs 4GiB)",
+                "ecs.c5.xlarge(4vCPUs 8GiB)"
+            ]
+        },
+        "BusinessVSwitchName": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "业务网络(HANA HSR同步等业务)交换机名称，长度为2-128个字符，以大小字母或中文开头，可包含数字，_或-",
+                "en": "Business vswitch(HANA system replication communication)name.The length is 2-128 characters,starting with a capital or lowercase letter,and can contain numbers, _ or -"
+            },
+            "Label": {
+                "zh-cn": "业务网络交换机名称",
+                "en": "Business VSwitch Name"
+            },
+            "Default": "SAP_Business_Vswitch",
+            "ConstraintDescription": {
+                "zh-cn": "长度为2-128个字符，以大小字母或中文开头，可包含数字，_或-",
+                "en": "The length is 2-128 characters, starting with a capital or lowercase letter , and can contain numbers, _ or -"
+            },
+            "MaxLength": 128,
+            "MinLength": 2,
+            "AllowedPattern": "^[a-zA-Z一-龥]+([\\w一-龥]|[-])+$"
+        },
+        "BusinessVSwitchCidrBlock": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "业务网络交换机网段必须是专有网络的子网段",
+                "en": "Business VSwitch subnet which is within VPC"
+            },
+            "Label": {
+                "zh-cn": "业务网络交换机网段",
+                "en": "Business VSwitch CIDR Block"
+            },
+            "Default": "10.0.10.0/24"
+        },
+        "HeartbeatVSwitchName": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "心跳网络（HANA cluster内部通讯使用）交换机名称，长度为2-128个字符，以大小字母或中文开头，可包含数字，_或-",
+                "en": "heartbeat vswitch(HANA cluster communication)name.The length is 2-128 characters,starting with a capital or lowercase letter,and can contain numbers, _ or -"
+            },
+            "Label": {
+                "zh-cn": "心跳网络交换机名称",
+                "en": "Hearbeat VSwitch Name"
+            },
+            "Default": "SAP_Heartbeat_Vswitch",
+            "ConstraintDescription": {
+                "zh-cn": "长度为2-128个字符，以大小字母或中文开头，可包含数字，_或-",
+                "en": "The length is 2-128 characters, starting with a capital or lowercase letter , and can contain numbers, _ or -"
+            },
+            "MaxLength": 128,
+            "MinLength": 2,
+            "AllowedPattern": "^[a-zA-Z一-龥]+([\\w一-龥]|[-])+$"
+        },
+        "HeartbeatVSwitchCidrBlock": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "心跳网络交换机网段必须是专有网络的子网段",
+                "en": "Heartbeat VSwitch subnet which is within VPC"
+            },
+            "Label": {
+                "zh-cn": "心跳网络交换机网段",
+                "en": "Hearbeat VSwitch CIDR Block"
+            },
+            "Default": "10.0.20.0/24"
+        },
+        "MasterHANABusinessIpAddress": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "主节点ECS主机业务IP地址，HANA HSR同步等业务使用，请注意IP地址的范围要在交换机网段",
+                "en": "Master node business IP address,for HANA system replication communication,please pay attention:IP address should be within VSwitch CIDR Block"
+            },
+            "Label": {
+                "zh-cn": "主节点业务IP地址",
+                "en": "Master Node Business IP Address"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "请输入正确的IP地址",
+                "en": "Please input the right IP address"
+            },
+            "Default": "10.0.10.1",
+            "AllowedPattern": "^((192\\.168|172\\.([1][6-9]|[2]\\d|3[01]))(\\.([2][0-4]\\d|[2][5][0-5]|[01]?\\d?\\d)){2}|(\\D)*10(\\.([2][0-4]\\d|[2][5][0-5]|[01]?\\d?\\d)){3})$"
+        },
+        "SlaveHANABusinessIpAddress": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "备节点ECS主机业务IP地址，HANA HSR同步等业务使用，请注意IP地址的范围要在交换机网段",
+                "en": "Slave node business IP address,for HANA system replication communication,please pay attention:IP address should be within VSwitch CIDR Block"
+            },
+            "Label": {
+                "zh-cn": "备节点业务IP地址",
+                "en": "Slave Node Business IP Address"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "请输入正确的IP地址",
+                "en": "Please input the right IP address"
+            },
+            "Default": "10.0.10.2",
+            "AllowedPattern": "^((192\\.168|172\\.([1][6-9]|[2]\\d|3[01]))(\\.([2][0-4]\\d|[2][5][0-5]|[01]?\\d?\\d)){2}|(\\D)*10(\\.([2][0-4]\\d|[2][5][0-5]|[01]?\\d?\\d)){3})$"
+        },
+        "MasterHeartIpAddress": {
+            "Type": "String",
+            "Label": {
+                "zh-cn": "主节点心跳IP地址",
+                "en": "Master Node Heartbeat IP Address"
+            },
+            "Description": {
+                "zh-cn": "主节点ECS主机心跳IP地址，HANA cluster内部通讯使用，请注意IP地址的范围要在交换机网段",
+                "en": "Master node heartbeat IP address,for cluster communication,please pay attention:IP address should be within VSwitch CIDR Block"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "请输入正确的IP地址",
+                "en": "Please input the right IP address"
+            },
+            "Default": "10.0.20.1",
+            "AllowedPattern": "^((192\\.168|172\\.([1][6-9]|[2]\\d|3[01]))(\\.([2][0-4]\\d|[2][5][0-5]|[01]?\\d?\\d)){2}|(\\D)*10(\\.([2][0-4]\\d|[2][5][0-5]|[01]?\\d?\\d)){3})$"
+        },
+        "SlaveHeartIpAddress": {
+            "Type": "String",
+            "Label": {
+                "zh-cn": "备节点心跳IP地址",
+                "en": "Slave Node Heartbeat IP Address"
+            },
+            "Description": {
+                "zh-cn": "备节点ECS主机心跳IP地址,HANA cluster内部通讯使用,请注意IP地址的范围要在交换机网段",
+                "en": "Slave node heartbeat IP address,for cluster communication,please pay attention:IP address should be within VSwitch CIDR Block"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "请输入正确的IP地址",
+                "en": "Please input the right IP address"
+            },
+            "Default": "10.0.20.2",
+            "AllowedPattern": "^((192\\.168|172\\.([1][6-9]|[2]\\d|3[01]))(\\.([2][0-4]\\d|[2][5][0-5]|[01]?\\d?\\d)){2}|(\\D)*10(\\.([2][0-4]\\d|[2][5][0-5]|[01]?\\d?\\d)){3})$"
+        },
+        "HAVIPIpAddress": {
+            "Type": "String",
+            "Label": {
+                "zh-cn": "HaVipIP地址",
+                "en": "HAVIP IP Address"
+            },
+            "Description": {
+                "zh-cn": "指定高可用虚拟IP地址",
+                "en": "High availability virtual IP address"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "请输入正确的IP地址",
+                "en": "Please input the right IP address"
+            },
+            "Default": "10.0.10.3",
+            "AllowedPattern": "^((192\\.168|172\\.([1][6-9]|[2]\\d|3[01]))(\\.([2][0-4]\\d|[2][5][0-5]|[01]?\\d?\\d)){2}|(\\D)*10(\\.([2][0-4]\\d|[2][5][0-5]|[01]?\\d?\\d)){3})$"
+        },
+        "InstanceType": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "<font color='blue'><b>1.选择机型前请先确认当前可用区下该机型是否有货，部分机型需要提前报备</b></font><br><font color='blue'><b>2.可选机型列表</b></font><br>[ecs.r5.2xlarge 非认证机型 64G]<br>[ecs.r5.4xlarge 非认证机型 128G]<br>[ecs.r5.8xlarge <font color='green'>SAP认证机型 256G</font>]<br>[ecs.r6.13xlarge <font color='green'>SAP认证机型 384G</font>]<br>[ecs.se1.14xlarge <font color='green'>SAP认证机型 480G</font>]<br>[ecs.r5.16xlarge <font color='green'>SAP认证机型 512G</font>]<br>[ecs.re4.20xlarge <font color='green'>SAP认证机型 960G</font>]<br>[ecs.re4.40xlarge <font color='green'>SAP认证机型 1920G</font>]<br>[ecs.re4e.40xlarge <font color='green'>SAP认证机型 3840G</font>]<br>[ecs.ebmre6-6t.52xlarge <font color='green'>SAP认证机型 6144G</font>]<br><font color='blue'><b>3.详情请参考</font> <a href='https://help.aliyun.com/document_detail/25378.html' target='_blank'><b>实例族详情</b></a>",
+                "en": "<font color='blue'><b>Instance type list</b></font><br> [ecs.r5.2xlarge Non-certified instance type 64G]<br>[ecs.r5.4xlarge Non-certified instance type 128G]<br>[ecs.r5.8xlarge <font color='green'>SAP certified instance type 256G</font>]<br>[ecs.r6.13xlarge <font color='green'>SAP certified instance type 384G</font>]<br>[ecs.se1.14xlarge <font color='green'>SAP certified instance type 480G</font>]<br>[ecs.r5.16xlarge <font color='green'>SAP certified instance type 512G</font>]<br>[ecs.re4.20xlarge <font color='green'>SAP certified instance type 960G</font>]<br>[ecs.re4.40xlarge <font color='green'>SAP certified instance type 1920G</font>]<br>[ecs.re4e.40xlarge <font color='green'>SAP certified instance type 3840G</font>]<br>[ecs.ebmre6-6t.52xlarge <font color='green'>SAP certified instance type 6144G</font>]"
+            },
+            "Label": {
+                "zh-cn": "HANA机型",
+                "en": "Instance Type For HANA Host"
+            },
+            "AllowedValues": [
+                "ecs.r5.2xlarge(8vCPUs 64GiB)",
+                "ecs.r5.4xlarge(16vCPUs 128GiB)",
+                "ecs.r5.8xlarge(32vCPUs 256GiB)",
+                "ecs.r6.13xlarge(52vCPUs 384GiB)",
+                "ecs.se1.14xlarge(56vCPUs 480GiB)",
+                "ecs.r5.16xlarge(64vCPUs 512GiB)",
+                "ecs.re4.20xlarge(80vCPUs 960GiB)",
+                "ecs.re4.40xlarge(160vCPUs 1920GiB)",
+                "ecs.re4e.40xlarge(160vCPUs 3840GiB)",
+                "ecs.ebmre6-6t.52xlarge(208vCPUs 6144GiB)"
+            ]
+        },
+        "MasterECSHostname": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "HANA所在ECS的主机名",
+                "en": "HANA master node ECS hostname"
+            },
+            "Label": {
+                "zh-cn": "主节点主机名",
+                "en": "Master Node Hostname"
+            },
+            "Default": "hana001",
+            "AllowedPattern": "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-])*([a-zA-Z0-9])$",
+            "ConstraintDescription": {
+                "zh-cn": "长度为 2-13 个字符，允许使用大小写字母、数字或连字符(-)，但不能以连字符(-)开头或结尾。",
+                "en": "The length is 2-13 characters,can starting with a capital or lowercase letter,and can contain numbers,or -,but can't starting with - or end with -"
+            }
+        },
+        "SlaveECSHostname": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "HANA所在ECS的主机名",
+                "en": "HANA slave node ECS hostname"
+            },
+            "Label": {
+                "zh-cn": "备节点主机名",
+                "en": "Slave Node Hostname"
+            },
+            "Default": "hana002",
+            "AllowedPattern": "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-])*([a-zA-Z0-9])$",
+            "ConstraintDescription": {
+                "zh-cn": "长度为 2-13 个字符，允许使用大小写字母、数字或连字符(-)，但不能以连字符(-)开头或结尾。",
+                "en": "The length is 2-13 characters,can starting with a capital or lowercase letter,and can contain numbers,or -,but can't starting with - or end with -"
+            }
+        },
+        "LoginPassword": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "ECS root用户登录密码",
+                "en": "HANA ECS root passowrd"
+            },
+            "Label": {
+                "zh-cn": "root用户密码",
+                "en": "root Passowrd"
+            },
+            "AllowedPattern": "^(?![a-zA-Z]+$)(?![A-Z0-9]+$)(?![A-Z\\W_]+$)(?![a-z0-9]+$)(?![a-z\\W_]+$)(?![0-9\\W_]+$)[a-zA-Z0-9\\W_]{8,}$",
+            "ConstraintDescription": {
+                "zh-cn": "8-30个字符，且同时包含三项（大写字母，小写字母，数字或特殊符号）",
+                "en": "8-30 characters,include(capital letter,lowercase letter,numbers or special characters)"
+            },
+            "NoEcho": true,
+            "Confirm": true
+        },
+        "HANASID": {
+            "Type": "String",
+            "ConstraintDescription": {
+                "zh-cn": "必须输入3个字符,可包含大写字母或数字，首位必须是大写字母",
+                "en": "3 characters,can including capital letter or number, must starting with capital letter"
+            },
+            "Description": {
+                "zh-cn": "HANA SID",
+                "en": "HANA system ID"
+            },
+            "Label": {
+                "zh-cn": "HANA SID",
+                "en": "HANA System ID"
+            },
+            "AllowedPattern": "^[A-Z][A-Z0-9][A-Z0-9]$"
+        },
+        "HANAInstanceNumber": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "HANA instance number",
+                "en": "HANA instance number"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "2位数字，00-97",
+                "en": "2 numbers,00-97"
+            },
+            "Label": {
+                "zh-cn": "HANA实例编号",
+                "en": "HANA Instance Number"
+            },
+            "AllowedPattern": "^([0-8][0-9]|9[0-6])$",
+            "Default": "00"
+        },
+        "SystemDiskCategory": {
+            "Default": "cloud_ssd",
+            "AllowedValues": [
+                "cloud_efficiency",
+                "cloud_ssd",
+                "cloud_essd"
+            ],
+            "Description": {
+                "zh-cn": "系统盘分类：高效云盘，SSD云盘，ESSD云盘（PL1）",
+                "en": "System disk type: Ultra Disk,SSD disk"
+            },
+            "Label": {
+                "zh-cn": "系统盘类型",
+                "en": "System Disk Type"
+            },
+            "Type": "String"
+        },
+        "SystemDiskSize": {
+            "Default": "100",
+            "Type": "String",
+            "Description": {
+                "zh-cn": "根目录大小，单位GB，容量20-500G",
+                "en": "/ file system size,unit:GB,range:20~500G"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "必须输入整数，容量20-500G",
+                "en": "Must be an integer,range:20~500G"
+            },
+            "Label": {
+                "zh-cn": "系统盘大小",
+                "en": "System Disk Size"
+            },
+            "AllowedPattern": "(^2[0-9]$)|(^[3-9]\\d$)|(^[1-4]\\d{2}$)|500$"
+        },
+        "DataLogDiskCategory": {
+            "Default": "cloud_ssd",
+            "AllowedValues": [
+                "cloud_essd PL1",
+                "cloud_essd PL2",
+                "cloud_essd PL3",
+                "cloud_ssd"
+            ],
+            "Description": {
+                "zh-cn": "1. /hana/data和/hana/log文件系统所在磁盘类型：ESSD云盘、SSD云盘。<br>2. ESSD 云盘容量越大，可供选择的性能级别越高（460 GiB 以上可选 PL2，1260 GiB 以上可选 PL3），性能级别越高相应的费用也越高:<ul><li>&nbsp;&nbsp;&nbsp;&nbsp;cloud_essd PL1（单盘IOPS性能上限5万）</li><li>&nbsp;&nbsp;&nbsp;&nbsp;cloud_essd PL2（单盘IOPS性能上限10万）</li><li>&nbsp;&nbsp;&nbsp;&nbsp;cloud_essd PL3（单盘IOPS性能上限100万）</li></ul>如何合理选择 ESSD 云盘性能级别，<a href='https://help.aliyun.com/document_detail/122389.html' target='view_window'>查看详情&gt;</a>",
+                "en": "1. /hana/data and /hana/log file system disk type: ESSD disk,SSD disk.<br>2. The higher the performance level that you can select. For example, PL2 is available for an enhanced SSD of more than 460 GiB and PL3 is available for an enhanced SSD of more than 1260 GiB. A higher performance level indicates a higher fee:<ul><li>&nbsp;&nbsp;&nbsp;&nbsp;cloud_essd PL1(up to 50,000 IOPS per disk)</li><li>&nbsp;&nbsp;&nbsp;&nbsp;cloud_essd PL2(up to 100,000 IOPS per disk)</li><li>&nbsp;&nbsp;&nbsp;&nbsp;cloud_essd PL3(up to 1,000,000 IOPS per disk)</li></ul>For more information about how to select the performance level of an enhanced SSD, <a href='https://help.aliyun.com/document_detail/122389.html' target='view_window'>click here&gt;</a>"
+            },
+            "Label": {
+                "zh-cn": "HANA数据卷和日志卷磁盘类型",
+                "en": "HANA Data And Log Volume Disk Type"
+            },
+            "Type": "String"
+        },
+        "DataSize": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "/hana/data文件系统大小，单位GB，SAP官方推荐：Size >= 1 x RAM",
+                "en": "/hana/data file system size,unit:GB,SAP recommendation:Size >= 1 x RAM"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "必须输入整数，容量20-32768G",
+                "en": "Must be an integer,range:20~32768G"
+            },
+            "Label": {
+                "zh-cn": "/hana/data大小",
+                "en": "/hana/data File System Size"
+            },
+            "AllowedPattern": "(^[2-9]\\d{1}$)|(^[1-9]\\d{2}$)|(^[1-9]\\d{3}$)|(^[1-2]\\d{4}$)|(^3[0-2][0-7][0-6][0-8]$)"
+        },
+        "LogSize": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "/hana/log文件系统大小，单位GB，SAP官方推荐：[systems ≤ 512GB ] Sizeredolog = 1/2 x RAM;[systems > 512GB ] Sizeredolog(min) = 512GB",
+                "en": "/hana/log file system size,unit:GB,SAP recommendation:[systems ≤ 512GB ] Sizeredolog = 1/2 x RAM;[systems > 512GB ] Sizeredolog(min) = 512GB"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "必须输入整数，容量20-32768G",
+                "en": "Must be an integer,range:20~32768G"
+            },
+            "Label": {
+                "zh-cn": "/hana/log大小",
+                "en": "/hana/log File System Size"
+            },
+            "AllowedPattern": "(^[2-9]\\d{1}$)|(^[1-9]\\d{2}$)|(^[1-9]\\d{3}$)|(^[1-2]\\d{4}$)|(^3[0-2][0-7][0-6][0-8]$)"
+        },
+        "SharedDiskCategory": {
+            "Default": "cloud_ssd",
+            "AllowedValues": [
+                "cloud_efficiency",
+                "cloud_ssd",
+                "cloud_essd"
+            ],
+            "Description": {
+                "zh-cn": "/hana/shared文件系统所在磁盘类型：高效云盘、SSD云盘、ESSD云盘",
+                "en": "/hana/shared file system disk type: Ultra Disk, SSD disk, ESSD disk"
+            },
+            "Label": {
+                "zh-cn": "HANA共享卷磁盘类型",
+                "en": "/hana/shared File System Disk Type"
+            },
+            "Type": "String"
+        },
+        "SharedSize": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "/hana/shared文件系统大小，单位GB，SAP官方推荐：Sizeinstallation(single-node) = MIN(1 x RAM; 1 TB)",
+                "en": "/hana/shared file system size,unit:GB,SAP recommendation: Sizeinstallation(single-node) = MIN(1 x RAM; 1 TB)"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "必须输入整数，容量20-32768G",
+                "en": "Must be an integer,range:20~32768G"
+            },
+            "Label": {
+                "zh-cn": "/hana/shared大小",
+                "en": "/hana/shared File System Size"
+            },
+            "AllowedPattern": "(^[2-9]\\d{1}$)|(^[1-9]\\d{2}$)|(^[1-9]\\d{3}$)|(^[1-2]\\d{4}$)|(^3[0-2][0-7][0-6][0-8]$)"
+        },
+        "UsrsapDiskCategory": {
+            "Default": "cloud_ssd",
+            "AllowedValues": [
+                "cloud_efficiency",
+                "cloud_ssd",
+                "cloud_essd"
+            ],
+            "Description": {
+                "zh-cn": "/usr/sap文件系统所在磁盘类型：高效云盘、SSD云盘、ESSD云盘",
+                "en": "/usr/sap file system disk type: Ultra Disk, SSD disk, ESSD disk"
+            },
+            "Label": {
+                "zh-cn": "/usr/sap文件系统所在磁盘类型",
+                "en": "/usr/sap File System Disk Type"
+            },
+            "Type": "String"
+        },
+        "UsrsapSize": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "/usr/sap文件系统大小，单位GB",
+                "en": "/usr/sap file system size,unit:GB"
+            },
+            "Default": "50",
+            "ConstraintDescription": {
+                "zh-cn": "必须输入整数，容量20-32768G",
+                "en": "Must be an integer,range:20~32768G"
+            },
+            "Label": {
+                "zh-cn": "/usr/sap大小",
+                "en": "/usr/sap File System Size"
+            },
+            "AllowedPattern": "(^[2-9]\\d{1}$)|(^[1-9]\\d{2}$)|(^[1-9]\\d{3}$)|(^[1-2]\\d{4}$)|(^3[0-2][0-7][0-6][0-8]$)"
+        },
+        "MasterPass": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "HANA Master密码",
+                "en": "HANA master password to use during installation"
+            },
+            "Label": {
+                "zh-cn": "HANA Master密码",
+                "en": "HANA Master Password"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "至少8个字符,至少包含一个数字，大写字母和小写字母，可以使用特殊字符（_,@,#,$)，但不能以数字和特殊字符开头。",
+                "en": "Must be at least 8 characters with uppercase, lowercase, and numeric values,can use special characters include(_,@,#,$),but can't staring with number and specical characters"
+            },
+            "AllowedPattern": "^(?=.*[0-9].*)(?=.*[A-Z].*)(?=.*[a-z].*)[a-zA-Z][0-9a-zA-Z_@#$]{7,}$",
+            "NoEcho": true,
+            "Confirm": true
+        },
+        "MediaPath": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "请从SAP官网下载HANA安装介质，上传至SAP系统部署所在的OSS地域，输入该目录的路径，例：oss://{bucket_name}/hana",
+                "en": "Please download the HANA installation media from SAP software download center(Don't need to extract, the packages are like these:51053381_part1.exe or.rar）and upload them into OSS bucket,input the full path starting with oss://. eg: oss://{bucket_name}/hana"
+            },
+            "Label": {
+                "zh-cn": "HANA软件包OSS路径",
+                "en": "HANA Software OSS Path"
+            },
+            "ConstraintDescription": {
+                "zh-cn": "oss:开头，例：oss://{bucket_name}/hana",
+                "en": "Starting with oss.eg: oss://{bucket_name}/hana"
+            },
+            "AllowedPattern": "^(oss|https|http)://[\\S\\w]+([\\S\\w])+$"
+        },
+        "SystemUsage": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "HANA系统类型，包括custom,development,test,production",
+                "en": "HANA system usage(custom,development,test,production)"
+            },
+            "Label": {
+                "zh-cn": "HANA系统类型",
+                "en": "HANA System Usage"
+            },
+            "Default": "custom",
+            "AllowedValues": [
+                "custom",
+                "development",
+                "test",
+                "production"
+            ]
+        },
+        "HANASapSidAdmUid": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "sidadm user ID,只能填写数字,大于500且小于65532，默认值是1001",
+                "en": "sidadm user ID,Only number,range:500~65532,default value:1001"
+            },
+            "Label": {
+                "zh-cn": "HANA sidadm用户ID",
+                "en": "HANA sidadm User ID"
+            },
+            "Default": "1001",
+            "ConstraintDescription": {
+                "zh-cn": "只能填写数字,大于500且小于65532",
+                "en": "Only number,range:500~65532"
+            },
+            "AllowedPattern": "(^[5-9]\\d{2}$)|(^[1-9]\\d{3}$)|(^[1-5]\\d{4}$)|(^6[0-5][0-5][0-3][0-2]$)"
+        },
+        "HANASapSysGid": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "sapsys group ID,只能填写数字，默认值是79",
+                "en": "Sapsys group ID,Only number,default value:79"
+            },
+            "Label": {
+                "zh-cn": "HANA sapsys组ID",
+                "en": "HANA sapsys Group ID"
+            },
+            "Default": "79",
+            "ConstraintDescription": {
+                "zh-cn": "只能填写数字",
+                "en": "Only number"
+            },
+            "AllowedPattern": "(^\\d+$)"
+        },
+        "AutomationProvider": {
+            "Type": "String",
+            "Description": {
+                "zh-cn": "SAP自动部署依赖文件源",
+                "en": "Provider of SAP auto installation files"
+            },
+            "Label": {
+                "zh-cn": "SAP自动部署依赖源",
+                "en": "SAP Automation Provider"
+            },
+            "Default": "sap-automation"
+        },
+        "SSHKeyPair": {
+            "Type": "String",
+            "AssociationProperty": "ALIYUN::ECS::KeyPair::KeyPairName",
+            "Description": {
+                "zh-cn": "同时为创建的实例绑定密钥对，默认不绑定。",
+                "en": "Bind a key pair for ECS"
+            },
+            "Label": {
+                "zh-cn": "密钥对",
+                "en": "Key Pair"
+            },
+            "Default": ""
+        }
+    },
+    "Metadata": {
+        "ALIYUN::ROS::Interface": {
+            "TemplateTags": [
+                "SAP"
+            ],
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": {
+                            "zh-cn": "基础资源配置（必填）",
+                            "en": "Infrastructure Configuration"
+                        }
+                    },
+                    "Parameters": [
+                        "ZoneId",
+                        "ImageId",
+                        "VpcName",
+                        "VpcCidrBlock",
+                        "BusinessVSwitchName",
+                        "BusinessVSwitchCidrBlock",
+                        "HeartbeatVSwitchName",
+                        "HeartbeatVSwitchCidrBlock",
+                        "MasterHANABusinessIpAddress",
+                        "SlaveHANABusinessIpAddress",
+                        "MasterHeartIpAddress",
+                        "SlaveHeartIpAddress",
+                        "HAVIPIpAddress",
+                        "InstanceType",
+                        "MasterECSHostname",
+                        "SlaveECSHostname",
+                        "LoginPassword"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": {
+                            "zh-cn": "HANA配置（必填）",
+                            "en": "SAP HANA Configuration"
+                        }
+                    },
+                    "Parameters": [
+                        "HANASID",
+                        "HANAInstanceNumber",
+                        "SystemDiskCategory",
+                        "SystemDiskSize",
+                        "DataLogDiskCategory",
+                        "DataSize",
+                        "LogSize",
+                        "SharedDiskCategory",
+                        "SharedSize",
+                        "UsrsapDiskCategory",
+                        "UsrsapSize",
+                        "MasterPass",
+                        "MediaPath"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": {
+                            "zh-cn": "可选配置",
+                            "en": "Optional Configuration"
+                        }
+                    },
+                    "Parameters": [
+                        "SystemUsage",
+                        "HANASapSidAdmUid",
+                        "HANASapSysGid",
+                        "SSHKeyPair"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": {
+                            "zh-cn": "WindowsRDP(可选)",
+                            "en": "WindowsRDP(Optional)"
+                        }
+                    },
+                    "Parameters": [
+                        "WindowsRDPCondition",
+                        "WindowsRDPHostname",
+                        "WindowsRDPImageId",
+                        "WindowsRDPInstanceType"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": {
+                            "zh-cn": "操作审计(可选)",
+                            "en": "ActionTrail(Optional)"
+                        }
+                    },
+                    "Parameters": [
+                        "ActionTrailCondition",
+                        "ActionTrailOssBucketName"
+                    ]
+                }
+            ]
+        }
+    },
+    "Conditions": {
+        "CreateWindowsRDPCondition": {
+            "Ref": "WindowsRDPCondition"
+        },
+        "AutomationProviderCondition": {
+            "Fn::Equals": [
+                {
+                    "Ref": "AutomationProvider"
+                },
+                "sap-automation"
+            ]
+        }
+    },
+    "Resources": {
+        "HANetworkStack": {
+            "Type": "ALIYUN::ROS::Stack",
+            "Properties": {
+                "TemplateURL": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "https://",
+                            {
+                                "Fn::If": [
+                                    "AutomationProviderCondition",
+                                    {
+                                        "Fn::Join": [
+                                            "",
+                                            [
+                                                {
+                                                    "Ref": "AutomationProvider"
+                                                },
+                                                "-",
+                                                {
+                                                    "Ref": "ALIYUN::Region"
+                                                }
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "Ref": "AutomationProvider"
+                                    }
+                                ]
+                            },
+                            ".oss-",
+                            {
+                                "Ref": "ALIYUN::Region"
+                            },
+                            ".aliyuncs.com/alibabacloud-quickstart/v1/sap-common/templates/Network_HA.json"
+                        ]
+                    ]
+                },
+                "TimeoutMins": 10,
+                "Parameters": {
+                    "ZoneId": {
+                        "Ref": "ZoneId"
+                    },
+                    "VpcName": {
+                        "Ref": "VpcName"
+                    },
+                    "VpcCidrBlock": {
+                        "Ref": "VpcCidrBlock"
+                    },
+                    "BusinessVSwitchName": {
+                        "Ref": "BusinessVSwitchName"
+                    },
+                    "BusinessVSwitchCidrBlock": {
+                        "Ref": "BusinessVSwitchCidrBlock"
+                    },
+                    "HeartbeatVSwitchName": {
+                        "Ref": "HeartbeatVSwitchName"
+                    },
+                    "HeartbeatVSwitchCidrBlock": {
+                        "Ref": "HeartbeatVSwitchCidrBlock"
+                    }
+                }
+            }
+        },
+        "HANANodesStack": {
+            "Type": "ALIYUN::ROS::Stack",
+            "Properties": {
+                "TemplateURL": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "https://",
+                            {
+                                "Fn::If": [
+                                    "AutomationProviderCondition",
+                                    {
+                                        "Fn::Join": [
+                                            "",
+                                            [
+                                                {
+                                                    "Ref": "AutomationProvider"
+                                                },
+                                                "-",
+                                                {
+                                                    "Ref": "ALIYUN::Region"
+                                                }
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "Ref": "AutomationProvider"
+                                    }
+                                ]
+                            },
+                            ".oss-",
+                            {
+                                "Ref": "ALIYUN::Region"
+                            },
+                            ".aliyuncs.com/alibabacloud-quickstart/v1/sap-hana/sap-hana-ha/templates/HANA_HA.json"
+                        ]
+                    ]
+                },
+                "TimeoutMins": 60,
+                "Parameters": {
+                    "ImageId": {
+                        "Ref": "ImageId"
+                    },
+                    "ZoneId": {
+                        "Ref": "ZoneId"
+                    },
+                    "VpcId": {
+                        "Fn::GetAtt": [
+                            "HANetworkStack",
+                            "Outputs.VpcId"
+                        ]
+                    },
+                    "BusinessVSwitchId": {
+                        "Fn::GetAtt": [
+                            "HANetworkStack",
+                            "Outputs.BusinessVSwitchId"
+                        ]
+                    },
+                    "HeartbeatVSwitchId": {
+                        "Fn::GetAtt": [
+                            "HANetworkStack",
+                            "Outputs.HeartbeatVSwitchId"
+                        ]
+                    },
+                    "ActionTrailCondition": {
+                        "Ref": "ActionTrailCondition"
+                    },
+                    "ActionTrailOssBucketName": {
+                        "Ref": "ActionTrailOssBucketName"
+                    },
+                    "WindowsRDPImageId": {
+                        "Ref": "WindowsRDPImageId"
+                    },
+                    "WindowsRDPHostname": {
+                        "Ref": "WindowsRDPHostname"
+                    },
+                    "WindowsRDPCondition": {
+                        "Ref": "WindowsRDPCondition"
+                    },
+                    "WindowsRDPInstanceType": {
+                        "Ref": "WindowsRDPInstanceType"
+                    },
+                    "MasterHANABusinessIpAddress": {
+                        "Ref": "MasterHANABusinessIpAddress"
+                    },
+                    "SlaveHANABusinessIpAddress": {
+                        "Ref": "SlaveHANABusinessIpAddress"
+                    },
+                    "MasterHeartIpAddress": {
+                        "Ref": "MasterHeartIpAddress"
+                    },
+                    "SlaveHeartIpAddress": {
+                        "Ref": "SlaveHeartIpAddress"
+                    },
+                    "HAVIPIpAddress": {
+                        "Ref": "HAVIPIpAddress"
+                    },
+                    "InstanceType": {
+                        "Ref": "InstanceType"
+                    },
+                    "MasterECSHostname": {
+                        "Ref": "MasterECSHostname"
+                    },
+                    "SlaveECSHostname": {
+                        "Ref": "SlaveECSHostname"
+                    },
+                    "LoginPassword": {
+                        "Ref": "LoginPassword"
+                    },
+                    "HANASID": {
+                        "Ref": "HANASID"
+                    },
+                    "HANAInstanceNumber": {
+                        "Ref": "HANAInstanceNumber"
+                    },
+                    "SystemDiskCategory": {
+                        "Ref": "SystemDiskCategory"
+                    },
+                    "SystemDiskSize": {
+                        "Ref": "SystemDiskSize"
+                    },
+                    "DataLogDiskCategory": {
+                        "Ref": "DataLogDiskCategory"
+                    },
+                    "DataSize": {
+                        "Ref": "DataSize"
+                    },
+                    "LogSize": {
+                        "Ref": "LogSize"
+                    },
+                    "SharedDiskCategory": {
+                        "Ref": "SharedDiskCategory"
+                    },
+                    "SharedSize": {
+                        "Ref": "SharedSize"
+                    },
+                    "UsrsapDiskCategory": {
+                        "Ref": "UsrsapDiskCategory"
+                    },
+                    "UsrsapSize": {
+                        "Ref": "UsrsapSize"
+                    },
+                    "MasterPass": {
+                        "Ref": "MasterPass"
+                    },
+                    "MediaPath": {
+                        "Ref": "MediaPath"
+                    },
+                    "SystemUsage": {
+                        "Ref": "SystemUsage"
+                    },
+                    "HANASapSidAdmUid": {
+                        "Ref": "HANASapSidAdmUid"
+                    },
+                    "HANASapSysGid": {
+                        "Ref": "HANASapSysGid"
+                    },
+                    "AutomationProvider": {
+                        "Ref": "AutomationProvider"
+                    },
+                    "Site": "International",
+                    "SSHKeyPair": {
+                        "Ref": "SSHKeyPair"
+                    }
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "InstallLog": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "HANANodesStack",
+                    "Outputs.InstallLog"
+                ]
+            }
+        },
+        "HANAServerMasterId": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "HANANodesStack",
+                    "Outputs.HANAServerMasterId"
+                ]
+            }
+        },
+        "HANAServerMasterIP": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "HANANodesStack",
+                    "Outputs.HANAServerMasterIP"
+                ]
+            }
+        },
+        "HANAServerSlaveId": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "HANANodesStack",
+                    "Outputs.HANAServerSlaveId"
+                ]
+            }
+        },
+        "HANAServerSlaveIP": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "HANANodesStack",
+                    "Outputs.HANAServerSlaveIP"
+                ]
+            }
+        },
+        "HAVIP": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "HANANodesStack",
+                    "Outputs.HAVIP"
+                ]
+            }
+        },
+        "HANAMasterServerHawkURL": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "HANANodesStack",
+                    "Outputs.HANAMasterServerHawkURL"
+                ]
+            }
+        },
+        "WindowsRDPPublicIP": {
+            "Condition": "CreateWindowsRDPCondition",
+            "Value": {
+                "Fn::GetAtt": [
+                    "HANANodesStack",
+                    "Outputs.WindowsRDPPublicIP"
+                ]
+            }
+        }
+    }
+}
