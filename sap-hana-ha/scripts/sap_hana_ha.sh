@@ -7,7 +7,7 @@
 #================================================================================================================
 # Environments
 QUICKSTART_SAP_MOUDLE='sap-hana-ha'
-QUICKSTART_SAP_MOUDLE_VERSION='1.0'
+QUICKSTART_SAP_MOUDLE_VERSION='1.0.3'
 QUICKSTART_ROOT_DIR=$(cd $(dirname "$0" ) && pwd )
 QUICKSTART_SAP_SCRIPT_DIR="${QUICKSTART_ROOT_DIR}"
 QUICKSTART_FUNCTIONS_SCRIPT_PATH="${QUICKSTART_SAP_SCRIPT_DIR}/functions.sh"
